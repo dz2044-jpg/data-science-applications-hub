@@ -1365,7 +1365,10 @@ import type {
     ApiAeXVariable,
 } from '@/types/ae';
 import type { ApiDatasetSchemaResults } from '@/types/datasets';
-import type { ApiDatasetConfig } from '@/types/dataset-config';
+import {
+    isMortalityDatasetConfig,
+    type ApiDatasetConfig,
+} from '@/types/dataset-config';
 import type { ApiAeInsightDrill, ApiAeInsightsResults } from '@/types/insights';
 
 const route = useRoute();
@@ -2641,9 +2644,12 @@ watch(
 
         try {
             const config = await getDatasetConfig(configId);
+            if (!isMortalityDatasetConfig(config)) {
+                throw new Error('Selected configuration is not a mortality A/E config.');
+            }
 
             // Apply column mappings from config
-            const mapping = config.column_mapping;
+            const mapping = config.module_config;
             policyNumberColumn.value = mapping.policy_number_column;
             faceAmountColumn.value = mapping.face_amount_column;
             macColumn.value = mapping.mac_column;

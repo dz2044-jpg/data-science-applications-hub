@@ -23,6 +23,7 @@ from app.models.insights import (
 from app.service.ae_univariate import _detect_application_id_column
 from app.service.dataframe_loader import read_dataframe_from_path
 from app.service.dataset_config import get_dataset_config_with_file
+from app.models.dataset_config import get_mortality_module_config
 from app.service.dataset_schema import get_dataset_schema_from_path
 
 _MISSING_LABEL = "(Missing)"
@@ -266,6 +267,7 @@ def _profile_candidates(
     config,
     file_path: Path,
 ) -> list[_InsightDimension]:
+    mortality_config = get_mortality_module_config(config)
     schema = get_dataset_schema_from_path(
         file_path=file_path,
         dataset_name=config.dataset_name,
@@ -273,14 +275,14 @@ def _profile_candidates(
     mapped_columns = {
         name
         for name in [
-            _normalize_optional_name(config.column_mapping.policy_number_column),
-            _normalize_optional_name(config.column_mapping.face_amount_column),
-            _normalize_optional_name(config.column_mapping.mac_column),
-            _normalize_optional_name(config.column_mapping.mec_column),
-            _normalize_optional_name(config.column_mapping.man_column),
-            _normalize_optional_name(config.column_mapping.men_column),
-            _normalize_optional_name(config.column_mapping.moc_column),
-            _normalize_optional_name(config.column_mapping.cola_m1_column),
+            _normalize_optional_name(mortality_config.policy_number_column),
+            _normalize_optional_name(mortality_config.face_amount_column),
+            _normalize_optional_name(mortality_config.mac_column),
+            _normalize_optional_name(mortality_config.mec_column),
+            _normalize_optional_name(mortality_config.man_column),
+            _normalize_optional_name(mortality_config.men_column),
+            _normalize_optional_name(mortality_config.moc_column),
+            _normalize_optional_name(mortality_config.cola_m1_column),
         ]
         if name is not None
     }
@@ -385,6 +387,7 @@ def perform_ae_insights_from_config(
     *, params: ApiAeInsightsFromConfigRequest
 ) -> ApiAeInsightsResults:
     config, file_path = get_dataset_config_with_file(params.config_id)
+    mortality_config = get_mortality_module_config(config)
     schema = get_dataset_schema_from_path(
         file_path=file_path,
         dataset_name=config.dataset_name,
@@ -392,10 +395,10 @@ def perform_ae_insights_from_config(
     available_columns = {column.name for column in schema.columns}
 
     required_columns = {
-        config.column_mapping.mac_column,
-        config.column_mapping.mec_column,
-        config.column_mapping.man_column,
-        config.column_mapping.men_column,
+        mortality_config.mac_column,
+        mortality_config.mec_column,
+        mortality_config.man_column,
+        mortality_config.men_column,
     }
     missing_columns = sorted(required_columns - available_columns)
     if missing_columns:
@@ -405,7 +408,7 @@ def perform_ae_insights_from_config(
         )
 
     probe_df = read_dataframe_from_path(file_path=file_path, nrows=5)
-    app_id_column = _normalize_optional_name(config.column_mapping.policy_number_column)
+    app_id_column = _normalize_optional_name(mortality_config.policy_number_column)
     if app_id_column is None:
         app_id_column = _detect_application_id_column(probe_df)
     if app_id_column not in available_columns:
@@ -445,11 +448,11 @@ def perform_ae_insights_from_config(
                 SELECT
                     {dimension_select},
                     {_quote_identifier(app_id_column)} AS "__app_id__",
-                    {_metric_expression(config.column_mapping.mac_column, "actual_count")},
-                    {_metric_expression(config.column_mapping.mec_column, "expected_count")},
-                    {_metric_expression(config.column_mapping.man_column, "actual_amount")},
-                    {_metric_expression(config.column_mapping.men_column, "expected_amount")},
-                    {_metric_expression(_normalize_optional_name(config.column_mapping.moc_column), "exposure_count")}
+                    {_metric_expression(mortality_config.mac_column, "actual_count")},
+                    {_metric_expression(mortality_config.mec_column, "expected_count")},
+                    {_metric_expression(mortality_config.man_column, "actual_amount")},
+                    {_metric_expression(mortality_config.men_column, "expected_amount")},
+                    {_metric_expression(_normalize_optional_name(mortality_config.moc_column), "exposure_count")}
                 FROM {table_name}
             )
             SELECT

@@ -135,7 +135,8 @@ def create_dataset_config(request: ApiCreateDatasetConfigRequest) -> ApiDatasetC
         dataset_name=request.dataset_name,
         performance_type=request.performance_type,
         file_path=request.file_path,
-        column_mapping=request.column_mapping,
+        module_id=request.module_id,
+        module_config=request.module_config,
         created_date=datetime.now(),
     )
     

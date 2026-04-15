@@ -6,10 +6,12 @@ from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 
 from app.models.dataset_config import (
+    ApiBinaryFeatureAeModuleConfig,
     ApiColumnMapping,
     ApiCreateDatasetConfigRequest,
     ApiDatasetConfig,
     ApiListDatasetConfigsResults,
+    ModuleId,
     PerformanceType,
 )
 from app.models.datasets import ApiDatasetSchemaResults
@@ -35,18 +37,33 @@ def get_dataset_configs() -> ApiListDatasetConfigsResults:
 async def create_dataset_config_route(
     dataset_name: str = Form(...),
     performance_type: str = Form(...),
-    column_mapping_json: str = Form(...),
+    module_id: str | None = Form(default=None),
+    module_config_json: str | None = Form(default=None),
+    column_mapping_json: str | None = Form(default=None),
     file: UploadFile = File(...),
 ) -> ApiDatasetConfig:
     try:
-        column_mapping_dict = json.loads(column_mapping_json)
-        column_mapping = ApiColumnMapping(**column_mapping_dict)
+        parsed_module_id = (
+            ModuleId(module_id)
+            if module_id is not None
+            else ModuleId.MORTALITY_AE
+        )
+        payload_json = module_config_json or column_mapping_json
+        if payload_json is None:
+            raise ValueError("Missing module_config_json")
+
+        module_config_dict = json.loads(payload_json)
+        if parsed_module_id == ModuleId.BINARY_FEATURE_AE:
+            module_config = ApiBinaryFeatureAeModuleConfig(**module_config_dict)
+        else:
+            module_config = ApiColumnMapping(**module_config_dict)
 
         request = ApiCreateDatasetConfigRequest(
             dataset_name=dataset_name,
             performance_type=PerformanceType(performance_type),
+            module_id=parsed_module_id,
             file_path=file.filename or "uploaded_file",
-            column_mapping=column_mapping,
+            module_config=module_config,
         )
 
         config = create_dataset_config(request)
@@ -57,7 +74,7 @@ async def create_dataset_config_route(
     except json.JSONDecodeError as exc:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid column_mapping JSON: {str(exc)}",
+            detail=f"Invalid module_config JSON: {str(exc)}",
         ) from exc
 
 

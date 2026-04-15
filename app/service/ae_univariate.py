@@ -32,6 +32,7 @@ from app.service.dataframe_loader import (
 )
 from app.service.dataset_cola import COLA_M1_COLUMN, COLA_M2_COLUMN
 from app.service.dataset_config import get_dataset_config_with_file
+from app.models.dataset_config import get_mortality_module_config
 from app.service.dataset_schema import MAC_COLUMN, MEC_COLUMN
 from app.utils.paths import get_data_dir
 
@@ -513,6 +514,7 @@ def perform_ae_univariate_from_config(
 ) -> ApiAeUnivariateResults:
     """Perform A/E univariate analysis from a saved dataset configuration."""
     config, file_path = get_dataset_config_with_file(params.config_id)
+    mortality_config = get_mortality_module_config(config)
     df = read_dataframe_from_path(file_path=file_path)
 
     config_params = ApiAeUnivariateParameters(
@@ -520,7 +522,7 @@ def perform_ae_univariate_from_config(
         x_variable=params.x_variable,
         split_variable=params.split_variable,
         application_id_column=params.application_id_column,
-        column_mapping=ApiAeColumnMapping(**config.column_mapping.model_dump()),
+        column_mapping=ApiAeColumnMapping(**mortality_config.model_dump()),
         exclusions=params.exclusions,
         poly_fit=params.poly_fit,
     )

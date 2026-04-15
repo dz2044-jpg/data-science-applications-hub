@@ -285,6 +285,10 @@ import type {
     ApiDatasetConfig,
     ApiListDatasetConfigsResults,
 } from '@/types/dataset-config';
+import type {
+    ApiBinaryFeatureCalculateRequest,
+    ApiBinaryFeatureCalculateResponse,
+} from '@/types/binary-feature-ae';
 
 export async function getDatasetConfigs(): Promise<ApiListDatasetConfigsResults> {
     const res = await fetch(`${API_BASE}/api/dataset-configs`);
@@ -301,7 +305,8 @@ export async function createDatasetConfig(
     const formData = new FormData();
     formData.append('dataset_name', request.dataset_name);
     formData.append('performance_type', request.performance_type);
-    formData.append('column_mapping_json', JSON.stringify(request.column_mapping));
+    formData.append('module_id', request.module_id);
+    formData.append('module_config_json', JSON.stringify(request.module_config));
     formData.append('file', file);
     
     const res = await fetch(`${API_BASE}/api/dataset-configs`, {
@@ -436,4 +441,27 @@ export async function getAeInsightsFromConfig(
         throw new Error((await res.text()) || `HTTP ${res.status}`);
     }
     return (await res.json()) as ApiAeInsightsResults;
+}
+
+export async function postBinaryFeatureCalculate(
+    params: ApiBinaryFeatureCalculateRequest,
+): Promise<ApiBinaryFeatureCalculateResponse> {
+    const res = await fetch(`${API_BASE}/api/binary-feature-ae/calculate`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(params),
+    });
+    if (!res.ok) {
+        const contentType = res.headers.get('content-type') ?? '';
+        if (contentType.includes('application/json')) {
+            const body = (await res.json()) as { detail?: unknown };
+            throw new Error(
+                typeof body.detail === 'string'
+                    ? body.detail
+                    : `HTTP ${res.status}`,
+            );
+        }
+        throw new Error((await res.text()) || `HTTP ${res.status}`);
+    }
+    return (await res.json()) as ApiBinaryFeatureCalculateResponse;
 }
