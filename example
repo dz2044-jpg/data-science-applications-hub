@@ -1,0 +1,141 @@
+import plotly.graph_objects as go
+import pandas as pd
+import numpy as np
+
+# --- 1. Synthetic Data Setup ---
+
+# A. Overall Data (The Baseline Rectangle)
+overall_data = pd.DataFrame({
+    'gender': ['Male', 'Female'],
+    'overall_ae': [1.02, 0.94], 
+    'ci_lower': [0.91, 0.86],
+    'ci_upper': [1.13, 1.02],
+    'x_anchor': [0, 1], 
+    'x_offset': [-0.25, -0.25] # Shifted to the left side
+})
+overall_data['final_x'] = overall_data['x_anchor'] + overall_data['x_offset']
+
+# B. Split Data (The Satellites)
+split_data = pd.DataFrame({
+    'gender': ['Male', 'Male', 'Male', 'Female', 'Female', 'Female'],
+    'term': ['T10', 'T20', 'T30', 'T10', 'T20', 'T30'],
+    'split_ae': [1.35, 1.05, 0.90, 0.99, 0.95, 0.85],
+    'ci_lower': [1.15, 0.95, 0.75, 0.85, 0.85, 0.70],
+    'ci_upper': [1.55, 1.15, 1.05, 1.13, 1.05, 1.00],
+    'exposure': [50, 200, 150, 40, 180, 220],
+    'color': ['#2563eb', '#ea580c', '#9333ea'] * 2, # Blue, Orange, Purple
+    'x_offset': [0.0, 0.15, 0.30] * 2 # Shifted to the right side
+})
+
+# Merge x_anchor from overall_data FIRST before calculating final_x
+split_data = split_data.merge(overall_data[['gender', 'x_anchor']], on='gender')
+split_data['final_x'] = split_data['x_anchor'] + split_data['x_offset']
+
+
+# --- 2. Building the Plot ---
+fig = go.Figure()
+
+# LAYER 1: The Overall Baseline (NOW A LARGE RECTANGLE/BAR)
+fig.add_trace(go.Bar(
+    x=overall_data['final_x'],
+    y=overall_data['overall_ae'],
+    name='Overall Gender Avg',
+    width=0.18, # This controls how "large" the rectangle is
+    marker=dict(
+        color='#e2e8f0', # Slate 200 (A soft, solid light grey)
+        line=dict(color='#94a3b8', width=1.5) # A slightly darker grey border
+    ),
+    error_y=dict(
+        type='data',
+        symmetric=False,
+        array=overall_data['ci_upper'] - overall_data['overall_ae'],
+        arrayminus=overall_data['overall_ae'] - overall_data['ci_lower'],
+        color='#475569', # Slate 600 (Dark grey for the error bar so it pops against the light rectangle)
+        thickness=2.5,
+        width=6
+    ),
+    hovertemplate="<b>OVERALL %{customdata[0]}</b><br>Avg A/E: %{y:.1%}<br>CI: [%{customdata[1]:.1%}, %{customdata[2]:.1%}]<extra></extra>",
+    customdata=overall_data[['gender', 'ci_lower', 'ci_upper']]
+))
+
+# LAYER 2: The Split Variables (Remaining as scattered dots with error bars)
+for term_name in split_data['term'].unique():
+    term_df = split_data[split_data['term'] == term_name]
+    trace_color = term_df['color'].iloc[0]
+    
+    fig.add_trace(go.Scatter(
+        x=term_df['final_x'],
+        y=term_df['split_ae'],
+        mode='markers',
+        name=f"Term {term_name}",
+        marker=dict(
+            color=trace_color,
+            size=np.log(term_df['exposure']) * 8, 
+            line=dict(width=1.5, color='white'),  
+            opacity=1.0
+        ),
+        error_y=dict(
+            type='data',
+            symmetric=False,
+            array=term_df['ci_upper'] - term_df['split_ae'],
+            arrayminus=term_df['split_ae'] - term_df['ci_lower'],
+            color=trace_color,
+            thickness=2,
+            width=5
+        ),
+        hovertemplate="<b>%{text}</b><br>A/E: %{y:.1%}<br>CI: [%{customdata[0]:.1%}, %{customdata[1]:.1%}]<extra></extra>",
+        text=term_df['gender'] + " - " + term_df['term'],
+        customdata=term_df[['ci_lower', 'ci_upper']]
+    ))
+
+
+# --- 3. Light Theme Styling ---
+fig.update_layout(
+    title="Interaction Analysis: Gender × Term Duration",
+    template="plotly_white", 
+    paper_bgcolor='#ffffff', 
+    plot_bgcolor='#ffffff',
+    font=dict(family="Inter, sans-serif", color="#334155"), 
+    xaxis=dict(
+        tickmode='array',
+        # Visually center the text between the bar (-0.25) and the last term (0.30)
+        tickvals=[0.025, 1.025], 
+        ticktext=['Male', 'Female'],
+        showgrid=False,
+        zeroline=False
+    ),
+    yaxis=dict(
+        title="A/E Ratio",
+        tickformat=".0%",
+        gridcolor='#e2e8f0', 
+        zeroline=False,
+        # Ensure the Y-axis starts near 0 or at least gives the bars room to breathe
+        rangemode="tozero" 
+    ),
+    legend=dict(
+        orientation="h", 
+        yanchor="bottom", y=1.02, 
+        xanchor="right", x=1
+    ),
+    margin=dict(l=60, r=40, t=80, b=60),
+    hovermode="closest",
+    # barmode="group" is needed when mixing bars and scatters to ensure alignment
+    barmode="group" 
+)
+
+# Add the 100% Target Line
+fig.add_hline(
+    y=1.0, 
+    line_dash="dash", 
+    line_color="#94a3b8", 
+    opacity=0.8, 
+    line_width=1.5,
+    annotation_text="100% Expected", 
+    annotation_position="bottom right",
+    annotation_font_color="#64748b"
+)
+
+# Add faint vertical separator lines to clearly box off Male vs Female
+fig.add_vline(x=0.5, line_width=1, line_dash="solid", line_color="#e2e8f0")
+
+fig.show()
