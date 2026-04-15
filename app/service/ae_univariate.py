@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-
 import numpy as np
 import pandas as pd
 
@@ -34,6 +32,11 @@ from app.service.dataset_cola import COLA_M1_COLUMN, COLA_M2_COLUMN
 from app.service.dataset_config import get_dataset_config_with_file
 from app.models.dataset_config import get_mortality_module_config
 from app.service.dataset_schema import MAC_COLUMN, MEC_COLUMN
+from app.utils.env import (
+    get_application_id_column_override,
+    get_max_cola_m1_causes,
+    get_max_split_groups,
+)
 from app.utils.paths import get_data_dir
 
 
@@ -92,9 +95,7 @@ def _compute_cola_m1_stacked(
         ]
         return ApiAeColaM1StackedResults(causes=causes or [], rows=rows, total_deaths=0.0, total_amount=0.0)
 
-    max_causes_raw = (os.getenv("AEMONITOR_MAX_COLA_M1_CAUSES") or "").strip()
-    max_causes = int(max_causes_raw) if max_causes_raw.isdigit() else 12
-    max_causes = max(1, min(30, max_causes))
+    max_causes = get_max_cola_m1_causes()
 
     if causes is None:
         totals_by_m1 = df2.groupby("__m1__", dropna=False)[mac_column].sum()
@@ -188,7 +189,7 @@ def _compute_cola_m1_stacked(
 
 
 def _detect_application_id_column(df: pd.DataFrame) -> str:
-    override = (os.getenv("AEMONITOR_APPLICATION_ID_COLUMN") or "").strip()
+    override = get_application_id_column_override()
     if override:
         if override not in df.columns:
             raise ValueError(f"application_id_column '{override}' not found in dataset")
@@ -214,7 +215,7 @@ def _detect_application_id_column(df: pd.DataFrame) -> str:
             return cols_by_lower[key]
 
     raise ValueError(
-        "Could not detect application id column; set AEMONITOR_APPLICATION_ID_COLUMN"
+        "Could not detect application id column; set INSIGHT_HUB_APPLICATION_ID_COLUMN"
     )
 
 
@@ -408,11 +409,10 @@ def _perform_ae_univariate_core(*, df: pd.DataFrame, params: ApiAeUnivariatePara
         df = df.copy()
         df["__split_group__"] = labels
 
-        max_groups_raw = (os.getenv("AEMONITOR_MAX_SPLIT_GROUPS") or "").strip()
-        max_groups = int(max_groups_raw) if max_groups_raw.isdigit() else 50
+        max_groups = get_max_split_groups()
         if len(order) > max_groups:
             raise ValueError(
-                f"Too many split groups ({len(order)}); increase AEMONITOR_MAX_SPLIT_GROUPS"
+                f"Too many split groups ({len(order)}); increase INSIGHT_HUB_MAX_SPLIT_GROUPS"
             )
 
         split_results = []

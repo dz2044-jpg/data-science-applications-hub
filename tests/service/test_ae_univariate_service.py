@@ -22,8 +22,10 @@ def test_service_ae_univariate_uses_env_application_id_column(
         "a2,10,11,20\n",
         encoding="utf-8",
     )
-    monkeypatch.setenv("AEMONITOR_DATA_DIR", str(tmp_path))
-    monkeypatch.setenv("AEMONITOR_APPLICATION_ID_COLUMN", "application_number")
+    monkeypatch.setenv("INSIGHT_HUB_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv(
+        "INSIGHT_HUB_APPLICATION_ID_COLUMN", "application_number"
+    )
 
     result = perform_ae_univariate(
         params=ApiAeUnivariateParameters(

@@ -5,10 +5,10 @@ from pathlib import Path
 import pytest
 
 from app.models.ae import (
+    ApiAePolynomialFitParameters,
     ApiAeUnivariateParameters,
     ApiAeXVariableCategorical,
     ApiAeXVariableNumeric,
-    ApiAePolynomialFitParameters,
     ApiNumericBinning,
 )
 from app.service.ae_univariate import perform_ae_univariate
@@ -24,8 +24,10 @@ def test_service_returns_split_results_when_split_variable_provided(
         "a3,10,10,40,M\n",
         encoding="utf-8",
     )
-    monkeypatch.setenv("AEMONITOR_DATA_DIR", str(tmp_path))
-    monkeypatch.setenv("AEMONITOR_APPLICATION_ID_COLUMN", "application_number")
+    monkeypatch.setenv("INSIGHT_HUB_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv(
+        "INSIGHT_HUB_APPLICATION_ID_COLUMN", "application_number"
+    )
 
     result = perform_ae_univariate(
         params=ApiAeUnivariateParameters(
@@ -47,7 +49,10 @@ def test_service_returns_split_results_when_split_variable_provided(
     assert result.poly_fit is not None
     assert result.split_results is not None
     assert {s.split_group for s in result.split_results} == {"F", "M"}
-    assert all(s.rows and s.rows[-1].variable_group == "Total" for s in result.split_results)
+    assert all(
+        s.rows and s.rows[-1].variable_group == "Total"
+        for s in result.split_results
+    )
     by_group = {s.split_group: s for s in (result.split_results or [])}
     assert by_group["F"].poly_fit is None  # only one point in this split
     assert by_group["M"].poly_fit is not None  # two points in this split

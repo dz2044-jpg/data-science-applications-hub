@@ -99,7 +99,7 @@ def test_build_drill_prefers_numeric_x_and_higher_cardinality_otherwise() -> Non
 def test_perform_ae_insights_from_config_returns_ranked_results(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("AEMONITOR_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("INSIGHT_HUB_DATA_DIR", str(tmp_path))
     config_id = _create_saved_config(tmp_path=tmp_path)
 
     result = perform_ae_insights_from_config(
@@ -146,7 +146,7 @@ def test_perform_ae_insights_from_config_returns_ranked_results(
 def test_perform_ae_insights_from_config_rejects_unknown_config(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("AEMONITOR_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("INSIGHT_HUB_DATA_DIR", str(tmp_path))
 
     with pytest.raises(ValueError, match="not found"):
         perform_ae_insights_from_config(

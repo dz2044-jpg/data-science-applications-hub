@@ -1,24 +1,16 @@
 from __future__ import annotations
 
-import os
-
 import pandas as pd
 
 from app.calc.ae_univariate import compute_group_labels_for_variable
 from app.models.ae import ApiAeVariableLabelsParameters, ApiAeVariableLabelsResults
 from app.retrieve.datasets import read_dataset_bytes
+from app.utils.env import get_max_unique_values
 from app.utils.paths import get_data_dir
 
 
 def _max_unique_values() -> int:
-    raw = (os.getenv("AEMONITOR_MAX_UNIQUE_VALUES") or "").strip()
-    if not raw:
-        return 100
-    try:
-        value = int(raw)
-    except ValueError:
-        return 100
-    return max(0, min(value, 5000))
+    return get_max_unique_values()
 
 
 def _read_dataframe_from_bytes(*, file_bytes: bytes, filename: str) -> pd.DataFrame:
@@ -56,6 +48,6 @@ def perform_ae_variable_labels(
     ):
         raise ValueError(
             "Too many unique values for UI selection; reduce cardinality or increase "
-            "AEMONITOR_MAX_UNIQUE_VALUES"
+            "INSIGHT_HUB_MAX_UNIQUE_VALUES"
         )
     return ApiAeVariableLabelsResults(labels=[str(x) for x in order])

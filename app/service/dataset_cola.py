@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-import os
-
 import pandas as pd
 
 from app.models.datasets import ApiDatasetColaResults
 from app.retrieve.datasets import read_dataset_bytes
+from app.utils.env import get_max_unique_values
 from app.utils.paths import get_data_dir
 
 COLA_M1_COLUMN = "COLA_M1"
@@ -13,10 +12,7 @@ COLA_M2_COLUMN = "COLA_M2"
 
 
 def _max_unique_values() -> int:
-    raw = (os.getenv("AEMONITOR_MAX_UNIQUE_VALUES") or "").strip()
-    if raw.isdigit():
-        return max(1, min(5000, int(raw)))
-    return 100
+    return max(1, get_max_unique_values())
 
 
 def _read_dataframe_columns(*, file_bytes: bytes, filename: str, columns: list[str]) -> pd.DataFrame:
@@ -101,4 +97,3 @@ def get_dataset_cola(*, dataset_name: str) -> ApiDatasetColaResults:
         cola_m2_by_m1=cola_m2_by_m1,
         max_unique_values=max_uniques,
     )
-

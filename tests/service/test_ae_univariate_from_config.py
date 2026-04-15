@@ -3,6 +3,8 @@ from __future__ import annotations
 from io import BytesIO
 from pathlib import Path
 
+import pytest
+
 from app.models.ae import (
     ApiAeUnivariateFromConfigParameters,
     ApiAeXVariableNumeric,
@@ -20,7 +22,7 @@ from app.service.dataset_config import create_dataset_config, save_uploaded_file
 def test_perform_ae_univariate_from_config_uses_saved_file(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("AEMONITOR_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("INSIGHT_HUB_DATA_DIR", str(tmp_path))
 
     request = ApiCreateDatasetConfigRequest(
         dataset_name="configured-ae",

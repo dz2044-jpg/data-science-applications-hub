@@ -51,8 +51,8 @@ Verify the backend at [http://localhost:8000/api/health](http://localhost:8000/a
 - Excel (`.xlsx`, `.xls`)
 - Parquet (`.parquet`)
 - File type is auto-detected by extension.
-- By default, datasets can live in the project root. Set `AEMONITOR_DATA_DIR` to override that directory.
-- Saved dataset configs and their uploaded files are stored under `.aemonitor/` and persist across backend restarts.
+- By default, datasets can live in the project root. Set `INSIGHT_HUB_DATA_DIR` to override that directory.
+- Saved dataset configs and their uploaded files are stored under `.insight-hub/` and persist across backend restarts.
 
 ### Data Expectations
 
@@ -203,10 +203,9 @@ Phase 1 routes:
 
 ### Developer Note
 
-Phase 1 intentionally keeps the legacy `.aemonitor/` storage folder and
-`AEMONITOR_*` environment variable names for backward compatibility. The product
-branding and UI are now **Advanced Analytics Insight Hub**, but storage naming
-will be revisited in a later multi-module migration.
+Phase 2 makes `.insight-hub/` and `INSIGHT_HUB_*` the canonical storage names.
+Legacy `.aemonitor/` storage and `AEMONITOR_*` environment variables are still
+accepted temporarily for backward compatibility during the migration window.
 
 ---
 

@@ -17,8 +17,8 @@ def test_get_dataset_schema_infers_kinds_and_uniques(
         "10,8,M,42,2020-01-02,0\n",
         encoding="utf-8",
     )
-    monkeypatch.setenv("AEMONITOR_DATA_DIR", str(tmp_path))
-    monkeypatch.setenv("AEMONITOR_MAX_UNIQUE_VALUES", "10")
+    monkeypatch.setenv("INSIGHT_HUB_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("INSIGHT_HUB_MAX_UNIQUE_VALUES", "10")
 
     schema = get_dataset_schema(dataset_name="demo.csv")
     assert schema.dataset_name == "demo.csv"
@@ -44,7 +44,7 @@ def test_get_dataset_schema_requires_mec_mac(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     (tmp_path / "bad.csv").write_text("x,y\n1,2\n", encoding="utf-8")
-    monkeypatch.setenv("AEMONITOR_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("INSIGHT_HUB_DATA_DIR", str(tmp_path))
 
     with pytest.raises(ValueError):
         get_dataset_schema(dataset_name="bad.csv")

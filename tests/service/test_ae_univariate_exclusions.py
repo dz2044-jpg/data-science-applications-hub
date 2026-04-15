@@ -24,8 +24,10 @@ def test_excluding_cola_m1_excludes_entire_policy(
         "a3,10,1,40,CANC,C2\n",
         encoding="utf-8",
     )
-    monkeypatch.setenv("AEMONITOR_DATA_DIR", str(tmp_path))
-    monkeypatch.setenv("AEMONITOR_APPLICATION_ID_COLUMN", "application_number")
+    monkeypatch.setenv("INSIGHT_HUB_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv(
+        "INSIGHT_HUB_APPLICATION_ID_COLUMN", "application_number"
+    )
 
     res = perform_ae_univariate(
         params=ApiAeUnivariateParameters(
@@ -54,8 +56,10 @@ def test_excluding_cola_m2_within_m1_excludes_only_matching_policy(
         "a3,10,1,40,CANC,C2\n",
         encoding="utf-8",
     )
-    monkeypatch.setenv("AEMONITOR_DATA_DIR", str(tmp_path))
-    monkeypatch.setenv("AEMONITOR_APPLICATION_ID_COLUMN", "application_number")
+    monkeypatch.setenv("INSIGHT_HUB_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv(
+        "INSIGHT_HUB_APPLICATION_ID_COLUMN", "application_number"
+    )
 
     res = perform_ae_univariate(
         params=ApiAeUnivariateParameters(
@@ -72,4 +76,3 @@ def test_excluding_cola_m2_within_m1_excludes_only_matching_policy(
     assert res.rows
     assert res.rows[-1].variable_group == "Total"
     assert res.rows[-1].sample_size == 2  # a1 + a3 remain
-

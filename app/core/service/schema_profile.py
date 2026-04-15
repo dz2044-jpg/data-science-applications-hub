@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import re
 from pathlib import Path
 
@@ -16,17 +15,11 @@ from app.service.dataframe_loader import (
     read_dataframe_from_bytes,
     read_dataframe_from_path,
 )
+from app.utils.env import get_max_unique_values
 
 
 def max_unique_values() -> int:
-    raw = (os.getenv("AEMONITOR_MAX_UNIQUE_VALUES") or "").strip()
-    if not raw:
-        return 100
-    try:
-        value = int(raw)
-    except ValueError:
-        return 100
-    return max(0, min(value, 5000))
+    return get_max_unique_values()
 
 
 def coerce_numeric(s: pd.Series) -> tuple[pd.Series, float]:
@@ -159,4 +152,3 @@ def get_core_schema_from_path(
         random_sample=True,
     )
     return build_core_dataset_schema(df=df, dataset_name=dataset_name)
-

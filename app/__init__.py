@@ -16,10 +16,12 @@ from app.modules.mortality_ae.routers.dataset_configs import (
 from app.routers.datasets import router as datasets_router
 from app.routers.health import router as health_router
 from app.routers.monitor import router as monitor_router
+from app.service.storage import bootstrap_storage
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    bootstrap_storage()
     yield
 
 

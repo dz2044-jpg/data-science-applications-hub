@@ -152,7 +152,7 @@ def test_apply_filters_matches_legacy_filter_behavior() -> None:
 def test_calculate_binary_feature_ae_from_saved_config(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("AEMONITOR_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("INSIGHT_HUB_DATA_DIR", str(tmp_path))
 
     source_df = _sample_binary_df().rename(
         columns={"cola_non_natural_pct": "cola_non-natural_pct"}

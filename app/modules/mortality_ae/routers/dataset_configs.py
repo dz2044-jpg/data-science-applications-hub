@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
@@ -58,16 +59,17 @@ async def create_dataset_config_route(
         else:
             module_config = ApiColumnMapping(**module_config_dict)
 
+        filename = Path(file.filename or "uploaded_file").name or "uploaded_file"
         request = ApiCreateDatasetConfigRequest(
             dataset_name=dataset_name,
             performance_type=PerformanceType(performance_type),
             module_id=parsed_module_id,
-            file_path=file.filename or "uploaded_file",
+            file_path=filename,
             module_config=module_config,
         )
 
         config = create_dataset_config(request)
-        save_uploaded_file(config.id, file.file, file.filename or "uploaded_file")
+        save_uploaded_file(config.id, file.file, filename)
         return config
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -25,6 +24,7 @@ from app.service.dataframe_loader import read_dataframe_from_path
 from app.service.dataset_config import get_dataset_config_with_file
 from app.models.dataset_config import get_mortality_module_config
 from app.service.dataset_schema import get_dataset_schema_from_path
+from app.utils.env import get_max_insight_dimensions
 
 _MISSING_LABEL = "(Missing)"
 
@@ -39,14 +39,7 @@ class _InsightDimension:
 
 
 def _max_candidate_dimensions() -> int:
-    raw = (os.getenv("AEMONITOR_MAX_INSIGHT_DIMENSIONS") or "").strip()
-    if not raw:
-        return 8
-    try:
-        value = int(raw)
-    except ValueError:
-        return 8
-    return max(2, min(value, 12))
+    return get_max_insight_dimensions()
 
 
 def _quote_identifier(name: str) -> str:

@@ -12,35 +12,17 @@ from app.models.dataset_config import (
     ApiDatasetConfig,
     ApiListDatasetConfigsResults,
 )
-from app.utils.paths import get_data_dir
-
-
-def _get_configs_file() -> Path:
-    """Get the path to the dataset configs JSON file."""
-    data_dir = get_data_dir()
-    configs_dir = data_dir / ".aemonitor"
-    configs_dir.mkdir(exist_ok=True)
-    return configs_dir / "dataset_configs.json"
-
-
-def _get_files_dir() -> Path:
-    """Get the directory for storing uploaded files."""
-    data_dir = get_data_dir()
-    files_dir = data_dir / ".aemonitor" / "files"
-    files_dir.mkdir(parents=True, exist_ok=True)
-    return files_dir
-
-
-def _get_config_file_dir(config_id: str) -> Path:
-    """Get the directory for a specific config's files."""
-    config_dir = _get_files_dir() / config_id
-    config_dir.mkdir(parents=True, exist_ok=True)
-    return config_dir
+from app.service.storage import (
+    get_config_file_dir,
+    get_configs_file,
+    get_dataset_file_path,
+    normalize_stored_file_path,
+)
 
 
 def save_uploaded_file(config_id: str, file_content: BinaryIO, filename: str) -> Path:
     """Save an uploaded file for a configuration."""
-    config_dir = _get_config_file_dir(config_id)
+    config_dir = get_config_file_dir(config_id, create=True)
     file_path = config_dir / filename
     
     with open(file_path, "wb") as f:
@@ -57,10 +39,9 @@ def get_config_file_path(config_id: str) -> Path | None:
     if not config:
         return None
     
-    config_dir = _get_config_file_dir(config_id)
-    file_path = config_dir / config.file_path
+    file_path = get_dataset_file_path(config_id, config.file_path)
     
-    if file_path.exists():
+    if file_path is not None and file_path.exists():
         return file_path
     return None
 
@@ -80,7 +61,7 @@ def get_dataset_config_with_file(config_id: str) -> tuple[ApiDatasetConfig, Path
 
 def _load_configs() -> list[ApiDatasetConfig]:
     """Load all dataset configurations from disk."""
-    configs_file = _get_configs_file()
+    configs_file = get_configs_file()
     if not configs_file.exists():
         return []
     
@@ -100,7 +81,7 @@ def _load_configs() -> list[ApiDatasetConfig]:
 
 def _save_configs(configs: list[ApiDatasetConfig]) -> None:
     """Save all dataset configurations to disk."""
-    configs_file = _get_configs_file()
+    configs_file = get_configs_file()
     
     # Convert to dict for JSON serialization
     data = []
@@ -128,13 +109,14 @@ def create_dataset_config(request: ApiCreateDatasetConfigRequest) -> ApiDatasetC
     
     # Generate unique ID
     config_id = str(uuid.uuid4())
+    stored_file_path, _ = normalize_stored_file_path(config_id, request.file_path)
     
     # Create new config
     new_config = ApiDatasetConfig(
         id=config_id,
         dataset_name=request.dataset_name,
         performance_type=request.performance_type,
-        file_path=request.file_path,
+        file_path=stored_file_path,
         module_id=request.module_id,
         module_config=request.module_config,
         created_date=datetime.now(),
@@ -167,7 +149,7 @@ def delete_dataset_config(config_id: str) -> bool:
         
         # Also delete the associated file directory
         try:
-            config_dir = _get_config_file_dir(config_id)
+            config_dir = get_config_file_dir(config_id, create=False)
             if config_dir.exists():
                 shutil.rmtree(config_dir)
         except Exception:

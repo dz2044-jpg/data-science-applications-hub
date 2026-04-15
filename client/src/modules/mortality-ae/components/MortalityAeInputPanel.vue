@@ -377,7 +377,7 @@
                                     <q-banner class="q-pa-sm bg-orange-1 text-orange-10">
                                         This column has too many unique values to edit groups in
                                         the UI. Reduce cardinality or increase
-                                        `AEMONITOR_MAX_UNIQUE_VALUES`.
+                                        `INSIGHT_HUB_MAX_UNIQUE_VALUES`.
                                     </q-banner>
                                 </div>
 
@@ -477,7 +477,7 @@
                                 <q-banner class="q-pa-sm bg-orange-1 text-orange-10">
                                     One of the selected variables has too many unique values to
                                     edit cross groups in the UI. Reduce cardinality or increase
-                                    `AEMONITOR_MAX_UNIQUE_VALUES`.
+                                    `INSIGHT_HUB_MAX_UNIQUE_VALUES`.
                                 </q-banner>
                             </div>
 
@@ -882,7 +882,7 @@
                                     <q-banner class="q-pa-sm bg-orange-1 text-orange-10">
                                         This column has too many unique values to edit groups in
                                         the UI. Reduce cardinality or increase
-                                        `AEMONITOR_MAX_UNIQUE_VALUES`.
+                                        `INSIGHT_HUB_MAX_UNIQUE_VALUES`.
                                     </q-banner>
                                 </div>
 
@@ -981,7 +981,7 @@
                                 <q-banner class="q-pa-sm bg-orange-1 text-orange-10">
                                     One of the selected variables has too many unique values to
                                     edit cross groups in the UI. Reduce cardinality or increase
-                                    `AEMONITOR_MAX_UNIQUE_VALUES`.
+                                    `INSIGHT_HUB_MAX_UNIQUE_VALUES`.
                                 </q-banner>
                             </div>
 

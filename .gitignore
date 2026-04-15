@@ -8,3 +8,5 @@ client/node_modules/
 client/dist/
 
 .aemonitor
+.insight-hub
+.insight-hub.migrating
