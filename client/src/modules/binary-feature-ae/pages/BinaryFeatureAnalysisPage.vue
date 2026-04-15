@@ -594,9 +594,14 @@ watch(
         if (!availableCategories) {
             return;
         }
-        categories.value = categories.value.filter((category) =>
+
+        const nextCategories = categories.value.filter((category) =>
             availableCategories.includes(category),
         );
+
+        if (nextCategories.length !== categories.value.length) {
+            categories.value = nextCategories;
+        }
     },
 );
 
