@@ -91,30 +91,32 @@
                             <!-- Row 3: Confidence Interval Level + Significance -->
                             <div class="filter-group q-mt-sm">
                                 <div class="row q-col-gutter-md">
-                                    <div class="col-12 col-sm-7">
-                                        <div class="text-caption text-grey-7 q-mb-xs">
+                                    <div class="col-12 col-sm-6">
+                                        <div class="text-caption text-grey-7 q-mb-xs filter-group-label">
                                             Confidence Interval Level
                                         </div>
-                                        <q-btn-toggle
+                                        <q-option-group
                                             v-model="ciLevel"
-                                            spread
-                                            unelevated
-                                            class="ci-toggle"
-                                            toggle-color="primary"
-                                            :options="ciLevelToggleOptions"
+                                            :options="ciLevelRadioOptions"
+                                            type="radio"
+                                            inline
+                                            dense
+                                            color="primary"
+                                            class="filter-option-group"
                                         />
                                     </div>
-                                    <div class="col-12 col-sm-5">
-                                        <q-select
+                                    <div class="col-12 col-sm-6">
+                                        <div class="text-caption text-grey-7 q-mb-xs filter-group-label">
+                                            Significance
+                                        </div>
+                                        <q-option-group
                                             v-model="significanceValues"
                                             :options="significanceOptions"
-                                            label="Significance"
-                                            emit-value
-                                            map-options
-                                            multiple
-                                            outlined
+                                            type="checkbox"
+                                            inline
                                             dense
-                                            options-dense
+                                            color="primary"
+                                            class="filter-option-group"
                                         />
                                     </div>
                                 </div>
@@ -450,7 +452,7 @@ const significanceOptions = SIGNIFICANCE_OPTIONS.map((value) => ({
     value,
 }));
 
-const ciLevelToggleOptions = CI_LEVEL_OPTIONS.map((value) => ({
+const ciLevelRadioOptions = CI_LEVEL_OPTIONS.map((value) => ({
     label: `${value}%`,
     value,
 }));
@@ -698,18 +700,35 @@ onBeforeUnmount(() => {
 
 /* ── Filter card ─────────────────────────────────────────── */
 .filter-card {
-    background: #f3f6fb;
-    border: 1px solid #d8e0ed;
+    background: #fafafa;
+    border: 1px solid #e3e3e3;
     border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
-/* Subtle white sub-panels inside the filter card */
+/* Subtle grouping sub-panels inside the filter card */
 .filter-group {
     background: #ffffff;
-    border: 1px solid #e4e8ef;
+    border: 1px solid #ebebeb;
     border-radius: 6px;
     padding: 10px 12px;
+}
+
+.filter-group-label {
+    font-weight: 500;
+    letter-spacing: 0.01em;
+}
+
+/* Option group (radio + checkbox) spacing */
+.filter-option-group :deep(.q-radio),
+.filter-option-group :deep(.q-checkbox) {
+    margin-right: 16px;
+}
+
+.filter-option-group :deep(.q-radio__label),
+.filter-option-group :deep(.q-checkbox__label) {
+    font-size: 0.85rem;
+    color: #374151;
 }
 
 /* ── Section cards (scatter, pinned rules, compare) ──────── */
@@ -737,22 +756,19 @@ onBeforeUnmount(() => {
     position: relative;
 }
 
-/* ── Toggle buttons: CI Level & Bubble Size ──────────────── */
+/* ── Toggle buttons: Bubble Size ────────────────────────── */
 
 /* Separate the flush-joined buttons with a visible gap */
-.ci-toggle :deep(.q-btn-group),
 .bubble-size-toggle :deep(.q-btn-group) {
     gap: 4px;
 }
 
 /* Each button gets its own rounded corners now that they are separated */
-.ci-toggle :deep(.q-btn),
 .bubble-size-toggle :deep(.q-btn) {
     border-radius: 4px !important;
 }
 
 /* Inactive options: visible fill + border + slightly darker text */
-.ci-toggle :deep(.q-btn:not(.q-btn--active)),
 .bubble-size-toggle :deep(.q-btn:not(.q-btn--active)) {
     background-color: #eef2f7;
     border: 1px solid #b8c4d4 !important;
@@ -760,7 +776,6 @@ onBeforeUnmount(() => {
 }
 
 /* Hover state for inactive options */
-.ci-toggle :deep(.q-btn:not(.q-btn--active):hover),
 .bubble-size-toggle :deep(.q-btn:not(.q-btn--active):hover) {
     background-color: #dce8f4;
 }
