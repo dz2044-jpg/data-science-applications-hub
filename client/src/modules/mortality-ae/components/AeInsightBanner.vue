@@ -9,9 +9,10 @@
         >
             <template #header>
                 <q-item-section>
-                    <div class="text-h6">Diagnostic insights</div>
+                    <div class="text-h6">Diagnostic Insight</div>
                     <div class="text-body2 text-grey-7">
                         Ranked 1D and 2D segments from the saved dataset configuration.
+                        Only segments with at least 1,500 Policy Count are shown.
                     </div>
                 </q-item-section>
                 <q-item-section side class="items-end q-gutter-y-xs">
@@ -49,7 +50,8 @@
                 class="bg-grey-1 text-grey-8 q-ma-md"
                 dense
             >
-                No {{ activeTab }} insights met the current signal thresholds.
+                No {{ activeTab }} insights met the current signal thresholds and the
+                minimum Policy Count of 1,500.
             </q-banner>
 
             <q-markup-table v-else flat dense separator="horizontal" class="insight-table">
@@ -57,7 +59,7 @@
                     <tr>
                         <th class="text-left">Segment</th>
                         <th class="text-left">Dimensions</th>
-                        <th class="text-right">Sample</th>
+                        <th class="text-right">Policy Count</th>
                         <th class="text-right">Actual</th>
                         <th class="text-right">Expected</th>
                         <th class="text-right">Variance</th>

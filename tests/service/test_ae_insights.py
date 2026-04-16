@@ -25,18 +25,20 @@ def _create_saved_config(
     *, tmp_path: Path, dataset_name: str = "insights-demo"
 ) -> str:
     rows: list[dict[str, object]] = []
-    for idx in range(120):
+    for idx in range(8000):
+        sex = "F" if idx % 4 == 0 else "M"
+        channel = "Direct" if idx < 4800 else "Agency"
         rows.append(
             {
-                "application_number": f"A-{idx:03d}",
-                "record_id": f"RID-{idx:03d}",
+                "application_number": f"A-{idx:05d}",
+                "record_id": f"RID-{idx:05d}",
                 "MEC": 1.0,
-                "MAC": 3.0 if idx < 60 else 0.5,
-                "MAN": 30000.0 if idx < 60 else 5000.0,
+                "MAC": 5.0 if sex == "F" else 0.5,
+                "MAN": 50000.0 if sex == "F" else 5000.0,
                 "MEN": 10000.0,
                 "MOC": 1.0,
-                "sex": "F" if idx < 60 else "M",
-                "channel": "Direct" if idx < 70 else "Agency",
+                "sex": sex,
+                "channel": channel,
                 "age": 20 + idx,
                 "tiny_numeric": idx % 3,
             }
@@ -112,6 +114,8 @@ def test_perform_ae_insights_from_config_returns_ranked_results(
     assert result.config_id == config_id
     assert result.count_insights
     assert result.amount_insights
+    assert all(insight.sample_size >= 1500 for insight in result.count_insights)
+    assert all(insight.sample_size >= 1500 for insight in result.amount_insights)
 
     top_count = result.count_insights[0]
     top_amount = result.amount_insights[0]

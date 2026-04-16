@@ -27,6 +27,7 @@ from app.service.dataset_schema import get_dataset_schema_from_path
 from app.utils.env import get_max_insight_dimensions
 
 _MISSING_LABEL = "(Missing)"
+_MIN_INSIGHT_POLICY_COUNT = 1500
 
 
 @dataclass(frozen=True)
@@ -506,7 +507,10 @@ def perform_ae_insights_from_config(
         [
             insight
             for insight in parsed
-            if insight.sample_size >= 50 and insight.expected_count >= 5
+            if (
+                insight.sample_size >= _MIN_INSIGHT_POLICY_COUNT
+                and insight.expected_count >= 5
+            )
         ],
         key=lambda insight: _sort_key(insight, metric="count", rank_by="ae"),
     )[: params.max_results_per_metric]
@@ -515,7 +519,10 @@ def perform_ae_insights_from_config(
         [
             insight
             for insight in parsed
-            if insight.expected_amount >= 10000
+            if (
+                insight.sample_size >= _MIN_INSIGHT_POLICY_COUNT
+                and insight.expected_amount >= 10000
+            )
         ],
         key=lambda insight: _sort_key(insight, metric="amount", rank_by="ae"),
     )[: params.max_results_per_metric]
