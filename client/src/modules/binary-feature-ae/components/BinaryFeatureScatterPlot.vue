@@ -17,6 +17,7 @@ const props = defineProps<{
     rows: ApiBinaryFeatureRow[];
     sizeBy: 'hit_count' | 'claim_count';
     displayCap: number;
+    xDisplayCap: number;
     selectedRowIds: string[];
     focusedRowId: string | null;
 }>();
@@ -78,7 +79,20 @@ async function renderPlot() {
 
     for (const band of CONFIDENCE_BAND_ORDER) {
         const bandRows = props.rows.filter((row) => row.confidence_band === band);
+
         if (!bandRows.length) {
+            // Add an empty trace so the band always appears in the legend
+            traces.push({
+                type: 'scatter',
+                mode: 'markers',
+                name: band,
+                legendgroup: band,
+                showlegend: true,
+                x: [],
+                y: [],
+                marker: { color: CONFIDENCE_BAND_COLORS[band] },
+                hoverinfo: 'skip',
+            });
             continue;
         }
 
@@ -96,6 +110,7 @@ async function renderPlot() {
             mode: 'markers',
             name: band,
             legendgroup: band,
+            showlegend: true,
             x: bandRows.map((row) => row.hit_rate),
             y: bandRows.map((row) => Math.min(row.ae_ratio, props.displayCap)),
             customdata: bandRows.map((row) => [
@@ -185,7 +200,7 @@ async function renderPlot() {
         {
             template: 'plotly_white',
             title: { text: 'Binary Feature Triage Scatter', x: 0.5 },
-            xaxis: { title: 'Hit Rate', tickformat: '.2%' },
+            xaxis: { title: 'Hit Rate', tickformat: '.2%', range: [0, props.xDisplayCap / 100] },
             yaxis: {
                 title: 'A/E Ratio',
                 range: [0, props.displayCap],
@@ -247,6 +262,7 @@ watch(
         props.rows,
         props.sizeBy,
         props.displayCap,
+        props.xDisplayCap,
         props.selectedRowIds,
         props.focusedRowId,
     ],

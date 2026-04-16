@@ -22,6 +22,7 @@ import Plotly from 'plotly.js-dist-min';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import type { ApiBinaryFeatureRow } from '@/types/binary-feature-ae';
+import { truncateLabel } from '@/utils/format';
 
 import { COLA_DEFINITIONS } from '@/modules/binary-feature-ae/constants';
 
@@ -79,13 +80,17 @@ async function renderCharts() {
         return right.claim_count - left.claim_count;
     });
 
+    const yLabels = sortedRows.map((row) => truncateLabel(row.rule));
+    const chartHeight = Math.max(400, 120 + 35 * sortedRows.length);
+    const sharedMargin = { l: 90, r: 20, t: 50, b: 110 };
+
     await Plotly.react(
         ciEl,
         [
             {
                 type: 'scatter',
                 x: sortedRows.map((row) => row.ae_ratio),
-                y: sortedRows.map((row) => row.rule),
+                y: yLabels,
                 mode: 'markers',
                 error_x: {
                     type: 'data',
@@ -106,9 +111,10 @@ async function renderCharts() {
                     row.claim_count,
                     row.hit_count,
                     row.significance_class,
+                    row.rule,
                 ]),
                 hovertemplate:
-                    '<b>%{y}</b><br>' +
+                    '<b>%{customdata[5]}</b><br>' +
                     'Rule Name: %{customdata[0]}<br>' +
                     'Category: %{customdata[1]}<br>' +
                     'Claim Count: %{customdata[2]:,.0f}<br>' +
@@ -121,10 +127,15 @@ async function renderCharts() {
         {
             template: 'plotly_white',
             title: 'Selected Rules: A/E with Confidence Intervals',
-            height: Math.max(320, 120 + 30 * sortedRows.length),
-            margin: { l: 60, r: 20, t: 50, b: 40 },
+            height: chartHeight,
+            margin: sharedMargin,
             xaxis: { title: 'A/E Ratio' },
-            yaxis: { title: 'Rule' },
+            yaxis: {
+                title: '',
+                categoryorder: 'array',
+                categoryarray: yLabels,
+                range: [-0.5, sortedRows.length - 0.5],
+            },
             shapes: [
                 {
                     type: 'line',
@@ -140,45 +151,46 @@ async function renderCharts() {
         { responsive: true },
     );
 
-    const mixRows = [...props.selectedRows].sort((left, right) => {
-        if (left.ae_ratio !== right.ae_ratio) {
-            return left.ae_ratio - right.ae_ratio;
-        }
-        return left.claim_count - right.claim_count;
-    });
-
     await Plotly.react(
         mixEl,
         COLA_DEFINITIONS.map((cola) => ({
             type: 'bar',
             orientation: 'h',
-            y: mixRows.map((row) => row.rule),
-            x: mixRows.map(
+            y: yLabels,
+            x: sortedRows.map(
                 (row) => row[`${cola.key}_display` as keyof ApiBinaryFeatureRow] as number,
             ),
             name: cola.label,
-            customdata: mixRows.map((row) => [
+            customdata: sortedRows.map((row) => [
                 row.RuleName,
                 row.category,
                 row.ae_ratio,
                 row.significance_class,
+                row.rule,
+                row.claim_count,
             ]),
             hovertemplate:
-                '<b>%{y}</b><br>' +
+                '<b>%{customdata[4]}</b><br>' +
                 'Rule Name: %{customdata[0]}<br>' +
                 'Category: %{customdata[1]}<br>' +
                 'A/E Ratio: %{customdata[2]:.4f}<br>' +
                 'Significance: %{customdata[3]}<br>' +
+                'Claim Count: %{customdata[5]:,.0f}<br>' +
                 'Share: %{x:.1f}%<extra></extra>',
         })),
         {
             template: 'plotly_white',
             title: 'Selected Rules: Claim Mix (Share %)',
             barmode: 'stack',
-            height: Math.max(320, 100 + 40 * mixRows.length),
-            margin: { l: 20, r: 20, t: 50, b: 110 },
+            height: chartHeight,
+            margin: sharedMargin,
             xaxis: { title: '' },
-            yaxis: { title: '' },
+            yaxis: {
+                title: '',
+                categoryorder: 'array',
+                categoryarray: yLabels,
+                range: [-0.5, sortedRows.length - 0.5],
+            },
         },
         { responsive: true },
     );
