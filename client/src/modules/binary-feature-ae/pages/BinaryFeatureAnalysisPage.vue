@@ -36,8 +36,9 @@
                 </q-card-section>
 
                 <q-card-section class="q-pt-none">
+                    <!-- Row 1: Category + Search -->
                     <div class="row q-col-gutter-md">
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-3">
                             <q-select
                                 v-model="categories"
                                 :options="categoryOptions"
@@ -51,20 +52,7 @@
                                 clearable
                             />
                         </div>
-                        <div class="col-12 col-md-4">
-                            <q-select
-                                v-model="significanceValues"
-                                :options="significanceOptions"
-                                label="Significance"
-                                emit-value
-                                map-options
-                                multiple
-                                outlined
-                                dense
-                                options-dense
-                            />
-                        </div>
-                        <div class="col-12 col-md-4">
+                        <div class="col-12 col-md-3">
                             <q-input
                                 v-model="searchText"
                                 outlined
@@ -76,6 +64,7 @@
                         </div>
                     </div>
 
+                    <!-- Row 2: Min Hit Count + Min Claim Count -->
                     <div class="row q-col-gutter-md q-mt-sm">
                         <div class="col-12 col-md-3">
                             <q-input
@@ -95,20 +84,11 @@
                                 label="Min Claim Count"
                             />
                         </div>
-                        <div class="col-12 col-md-3">
-                            <div class="text-caption text-grey-7 q-mb-xs">Bubble Size</div>
-                            <q-btn-toggle
-                                v-model="sizeBy"
-                                spread
-                                unelevated
-                                toggle-color="primary"
-                                :options="[
-                                    { label: 'Hit Count', value: 'hit_count' },
-                                    { label: 'Claim Count', value: 'claim_count' },
-                                ]"
-                            />
-                        </div>
-                        <div class="col-12 col-md-3">
+                    </div>
+
+                    <!-- Row 3: Confidence Interval Level + Significance -->
+                    <div class="row q-col-gutter-md q-mt-sm">
+                        <div class="col-12 col-md-4">
                             <div class="text-caption text-grey-7 q-mb-xs">
                                 Confidence Interval Level
                             </div>
@@ -120,23 +100,53 @@
                                 :options="ciLevelToggleOptions"
                             />
                         </div>
+                        <div class="col-12 col-md-2">
+                            <q-select
+                                v-model="significanceValues"
+                                :options="significanceOptions"
+                                label="Significance"
+                                emit-value
+                                map-options
+                                multiple
+                                outlined
+                                dense
+                                options-dense
+                            />
+                        </div>
                     </div>
 
-                    <div class="q-mt-md">
-                        <div class="row items-center justify-between q-mb-xs">
-                            <div class="text-caption text-grey-7">Y-Axis Display Cap</div>
-                            <div class="text-caption text-grey-7">
-                                {{ displayCap.toFixed(1) }}
+                    <!-- Row 4: X-Axis Display Cap + Y-Axis Display Cap -->
+                    <div class="row q-col-gutter-md q-mt-md">
+                        <div class="col-12 col-md-6">
+                            <div class="row items-center justify-between q-mb-xs">
+                                <div class="text-caption text-grey-7">X-Axis Display Cap</div>
+                                <div class="text-caption text-grey-7">{{ xDisplayCap }}%</div>
                             </div>
+                            <q-slider
+                                v-model="xDisplayCap"
+                                :min="0"
+                                :max="100"
+                                :step="1"
+                                label
+                                switch-label-side
+                            />
                         </div>
-                        <q-slider
-                            v-model="displayCap"
-                            :min="0"
-                            :max="5"
-                            :step="0.1"
-                            label
-                            switch-label-side
-                        />
+                        <div class="col-12 col-md-6">
+                            <div class="row items-center justify-between q-mb-xs">
+                                <div class="text-caption text-grey-7">Y-Axis Display Cap</div>
+                                <div class="text-caption text-grey-7">
+                                    {{ displayCap.toFixed(1) }}
+                                </div>
+                            </div>
+                            <q-slider
+                                v-model="displayCap"
+                                :min="0"
+                                :max="5"
+                                :step="0.1"
+                                label
+                                switch-label-side
+                            />
+                        </div>
                     </div>
                 </q-card-section>
             </q-card>
@@ -195,13 +205,28 @@
                 <div class="col-12 col-lg-8">
                     <q-card flat bordered>
                         <q-card-section>
-                            <div class="text-h6">Rule Scatter</div>
+                            <div class="row items-center justify-between">
+                                <div class="text-h6">Rule Scatter</div>
+                                <div class="row items-center q-gutter-x-sm">
+                                    <span class="text-caption text-grey-7">Bubble Size</span>
+                                    <q-btn-toggle
+                                        v-model="sizeBy"
+                                        unelevated
+                                        toggle-color="primary"
+                                        :options="[
+                                            { label: 'Hit Count', value: 'hit_count' },
+                                            { label: 'Claim Count', value: 'claim_count' },
+                                        ]"
+                                    />
+                                </div>
+                            </div>
                         </q-card-section>
                         <q-card-section class="q-pt-none scatter-card">
                             <BinaryFeatureScatterPlot
                                 :rows="rows"
                                 :size-by="sizeBy"
                                 :display-cap="displayCap"
+                                :x-display-cap="xDisplayCap"
                                 :selected-row-ids="selectedRowIds"
                                 :focused-row-id="focusedRowId"
                                 @update:selected-row-ids="selectedRowIds = $event"
@@ -355,6 +380,7 @@ const minClaimCount = ref<number | null>(5);
 const ciLevel = ref<BinaryFeatureCiLevel>('95');
 const sizeBy = ref<'hit_count' | 'claim_count'>('hit_count');
 const displayCap = ref(2.0);
+const xDisplayCap = ref(100);
 
 const selectedRowIds = ref<string[]>([]);
 const focusedRowId = ref<string | null>(null);
@@ -447,6 +473,7 @@ function resetInteractionState() {
     ciLevel.value = '95';
     sizeBy.value = 'hit_count';
     displayCap.value = 2.0;
+    xDisplayCap.value = 100;
     selectedRowIds.value = [];
     focusedRowId.value = null;
     pinnedRules.value = [];

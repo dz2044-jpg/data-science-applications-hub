@@ -17,6 +17,7 @@ const props = defineProps<{
     rows: ApiBinaryFeatureRow[];
     sizeBy: 'hit_count' | 'claim_count';
     displayCap: number;
+    xDisplayCap: number;
     selectedRowIds: string[];
     focusedRowId: string | null;
 }>();
@@ -199,7 +200,7 @@ async function renderPlot() {
         {
             template: 'plotly_white',
             title: { text: 'Binary Feature Triage Scatter', x: 0.5 },
-            xaxis: { title: 'Hit Rate', tickformat: '.2%' },
+            xaxis: { title: 'Hit Rate', tickformat: '.2%', range: [0, props.xDisplayCap / 100] },
             yaxis: {
                 title: 'A/E Ratio',
                 range: [0, props.displayCap],
@@ -261,6 +262,7 @@ watch(
         props.rows,
         props.sizeBy,
         props.displayCap,
+        props.xDisplayCap,
         props.selectedRowIds,
         props.focusedRowId,
     ],
