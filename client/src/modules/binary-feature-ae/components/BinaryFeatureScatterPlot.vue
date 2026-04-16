@@ -78,7 +78,20 @@ async function renderPlot() {
 
     for (const band of CONFIDENCE_BAND_ORDER) {
         const bandRows = props.rows.filter((row) => row.confidence_band === band);
+
         if (!bandRows.length) {
+            // Add an empty trace so the band always appears in the legend
+            traces.push({
+                type: 'scatter',
+                mode: 'markers',
+                name: band,
+                legendgroup: band,
+                showlegend: true,
+                x: [],
+                y: [],
+                marker: { color: CONFIDENCE_BAND_COLORS[band] },
+                hoverinfo: 'skip',
+            });
             continue;
         }
 
@@ -96,6 +109,7 @@ async function renderPlot() {
             mode: 'markers',
             name: band,
             legendgroup: band,
+            showlegend: true,
             x: bandRows.map((row) => row.hit_rate),
             y: bandRows.map((row) => Math.min(row.ae_ratio, props.displayCap)),
             customdata: bandRows.map((row) => [
