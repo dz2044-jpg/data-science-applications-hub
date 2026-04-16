@@ -1,5 +1,5 @@
 <template>
-    <q-page class="q-pa-md">
+    <q-page class="q-pa-md bg-grey-1">
         <div class="page-shell">
             <q-banner class="q-px-md q-pt-md q-pb-sm">
                 <div class="row items-center q-gutter-x-sm">
@@ -27,7 +27,7 @@
                 {{ errorMsg }}
             </q-banner>
 
-            <q-card flat bordered class="q-mt-md">
+            <q-card class="q-mt-md filter-card">
                 <q-card-section>
                     <div class="text-h6">Filters</div>
                     <div class="text-body2 text-grey-7">
@@ -89,81 +89,87 @@
                             </div>
 
                             <!-- Row 3: Confidence Interval Level + Significance -->
-                            <div class="row q-col-gutter-md q-mt-sm">
-                                <div class="col-12 col-sm-7">
-                                    <div class="text-caption text-grey-7 q-mb-xs">
-                                        Confidence Interval Level
+                            <div class="filter-group q-mt-sm">
+                                <div class="row q-col-gutter-md">
+                                    <div class="col-12 col-sm-7">
+                                        <div class="text-caption text-grey-7 q-mb-xs">
+                                            Confidence Interval Level
+                                        </div>
+                                        <q-btn-toggle
+                                            v-model="ciLevel"
+                                            spread
+                                            unelevated
+                                            class="ci-toggle"
+                                            toggle-color="primary"
+                                            :options="ciLevelToggleOptions"
+                                        />
                                     </div>
-                                    <q-btn-toggle
-                                        v-model="ciLevel"
-                                        spread
-                                        unelevated
-                                        toggle-color="primary"
-                                        :options="ciLevelToggleOptions"
-                                    />
-                                </div>
-                                <div class="col-12 col-sm-5">
-                                    <q-select
-                                        v-model="significanceValues"
-                                        :options="significanceOptions"
-                                        label="Significance"
-                                        emit-value
-                                        map-options
-                                        multiple
-                                        outlined
-                                        dense
-                                        options-dense
-                                    />
+                                    <div class="col-12 col-sm-5">
+                                        <q-select
+                                            v-model="significanceValues"
+                                            :options="significanceOptions"
+                                            label="Significance"
+                                            emit-value
+                                            map-options
+                                            multiple
+                                            outlined
+                                            dense
+                                            options-dense
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Row 4: X-Axis Display Cap -->
-                            <div class="q-mt-md">
-                                <div class="text-caption text-grey-7 q-mb-xs">
-                                    X-Axis Display Cap
+                            <!-- Axis Controls -->
+                            <div class="filter-group q-mt-sm">
+                                <!-- Row 4: X-Axis Display Cap -->
+                                <div>
+                                    <div class="text-caption text-grey-7 q-mb-xs">
+                                        X-Axis Display Cap
+                                    </div>
+                                    <div class="row items-center q-gutter-x-sm no-wrap">
+                                        <q-slider
+                                            v-model="xDisplayCap"
+                                            :min="0"
+                                            :max="100"
+                                            :step="1"
+                                            class="col"
+                                        />
+                                        <q-input
+                                            v-model.number="xDisplayCap"
+                                            type="number"
+                                            dense
+                                            outlined
+                                            suffix="%"
+                                            style="width: 88px"
+                                            @blur="clampX"
+                                        />
+                                    </div>
                                 </div>
-                                <div class="row items-center q-gutter-x-sm no-wrap">
-                                    <q-slider
-                                        v-model="xDisplayCap"
-                                        :min="0"
-                                        :max="100"
-                                        :step="1"
-                                        class="col"
-                                    />
-                                    <q-input
-                                        v-model.number="xDisplayCap"
-                                        type="number"
-                                        dense
-                                        outlined
-                                        suffix="%"
-                                        style="width: 88px"
-                                        @blur="clampX"
-                                    />
-                                </div>
-                            </div>
 
-                            <!-- Row 5: Y-Axis Display Cap -->
-                            <div class="q-mt-md">
-                                <div class="text-caption text-grey-7 q-mb-xs">
-                                    Y-Axis Display Cap
-                                </div>
-                                <div class="row items-center q-gutter-x-sm no-wrap">
-                                    <q-slider
-                                        v-model="yDisplayCap"
-                                        :min="0"
-                                        :max="5"
-                                        :step="0.1"
-                                        class="col"
-                                    />
-                                    <q-input
-                                        v-model.number="yDisplayCap"
-                                        type="number"
-                                        dense
-                                        outlined
-                                        inputmode="decimal"
-                                        style="width: 80px"
-                                        @blur="clampY"
-                                    />
+                                <!-- Row 5: Y-Axis Display Cap -->
+                                <div class="q-mt-md">
+                                    <div class="text-caption text-grey-7 q-mb-xs">
+                                        Y-Axis Display Cap
+                                    </div>
+                                    <div class="row items-center q-gutter-x-sm no-wrap">
+                                        <q-slider
+                                            v-model="yDisplayCap"
+                                            :min="0"
+                                            :max="5"
+                                            :step="0.1"
+                                            class="col"
+                                        />
+                                        <q-input
+                                            v-model.number="yDisplayCap"
+                                            type="number"
+                                            dense
+                                            outlined
+                                            inputmode="decimal"
+                                            style="width: 80px"
+                                            @blur="clampY"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -175,43 +181,43 @@
                 v-if="responseData"
                 class="kpi-grid q-mt-md"
             >
-                <q-card flat bordered class="kpi-card">
+                <q-card class="kpi-card">
                     <q-card-section>
                         <div class="text-caption text-grey-7">Visible Rules</div>
                         <div class="text-h5">{{ formatWholeNumber(responseData.kpis.visible_rule_count) }}</div>
                     </q-card-section>
                 </q-card>
-                <q-card flat bordered class="kpi-card">
+                <q-card class="kpi-card">
                     <q-card-section>
                         <div class="text-caption text-grey-7">Median Hit Rate</div>
                         <div class="text-h5">{{ formatPercentFromRatio(responseData.kpis.median_hit_rate) }}</div>
                     </q-card-section>
                 </q-card>
-                <q-card flat bordered class="kpi-card">
+                <q-card class="kpi-card">
                     <q-card-section>
                         <div class="text-caption text-grey-7">Median Claim Count</div>
                         <div class="text-h5">{{ formatWholeNumber(responseData.kpis.median_claim_count) }}</div>
                     </q-card-section>
                 </q-card>
-                <q-card flat bordered class="kpi-card">
+                <q-card class="kpi-card">
                     <q-card-section>
                         <div class="text-caption text-grey-7">Median A/E</div>
                         <div class="text-h5">{{ responseData.kpis.median_ae.toFixed(3) }}</div>
                     </q-card-section>
                 </q-card>
-                <q-card flat bordered class="kpi-card">
+                <q-card class="kpi-card">
                     <q-card-section>
                         <div class="text-caption text-grey-7">Elevated</div>
                         <div class="text-h5">{{ formatWholeNumber(responseData.kpis.elevated_count) }}</div>
                     </q-card-section>
                 </q-card>
-                <q-card flat bordered class="kpi-card">
+                <q-card class="kpi-card">
                     <q-card-section>
                         <div class="text-caption text-grey-7">Uncertain</div>
                         <div class="text-h5">{{ formatWholeNumber(responseData.kpis.uncertain_count) }}</div>
                     </q-card-section>
                 </q-card>
-                <q-card flat bordered class="kpi-card">
+                <q-card class="kpi-card">
                     <q-card-section>
                         <div class="text-caption text-grey-7">Below Expected</div>
                         <div class="text-h5">
@@ -223,7 +229,7 @@
 
             <div class="row q-col-gutter-md q-mt-md">
                 <div class="col-12 col-lg-8">
-                    <q-card flat bordered>
+                    <q-card class="section-card">
                         <q-card-section>
                             <div class="row items-center justify-between">
                                 <div class="text-h6">Rule Scatter</div>
@@ -232,6 +238,7 @@
                                     <q-btn-toggle
                                         v-model="sizeBy"
                                         unelevated
+                                        class="bubble-size-toggle"
                                         toggle-color="primary"
                                         :options="[
                                             { label: 'Hit Count', value: 'hit_count' },
@@ -267,7 +274,7 @@
                         :show-charts="false"
                     />
 
-                    <q-card flat bordered class="q-mt-md">
+                    <q-card class="q-mt-md section-card">
                         <q-card-section class="row items-center justify-between">
                             <div class="text-h6">Pinned Rules</div>
                             <div class="row q-gutter-sm">
@@ -331,7 +338,7 @@
                 />
             </div>
 
-            <q-card flat bordered class="q-mt-md">
+            <q-card class="q-mt-md section-card">
                 <q-card-section>
                     <div class="text-h6">Compare / Triage Table</div>
                 </q-card-section>
@@ -689,6 +696,30 @@ onBeforeUnmount(() => {
     max-width: 100%;
 }
 
+/* ── Filter card ─────────────────────────────────────────── */
+.filter-card {
+    background: #f3f6fb;
+    border: 1px solid #d8e0ed;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+/* Subtle white sub-panels inside the filter card */
+.filter-group {
+    background: #ffffff;
+    border: 1px solid #e4e8ef;
+    border-radius: 6px;
+    padding: 10px 12px;
+}
+
+/* ── Section cards (scatter, pinned rules, compare) ──────── */
+.section-card {
+    border: 1px solid #dde2ea;
+    border-radius: 8px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.06);
+}
+
+/* ── KPI metric cards ────────────────────────────────────── */
 .kpi-grid {
     display: grid;
     gap: 12px;
@@ -697,10 +728,41 @@ onBeforeUnmount(() => {
 
 .kpi-card {
     min-height: 108px;
+    border: 1px solid #dde2ea;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
 .scatter-card {
     position: relative;
+}
+
+/* ── Toggle buttons: CI Level & Bubble Size ──────────────── */
+
+/* Separate the flush-joined buttons with a visible gap */
+.ci-toggle :deep(.q-btn-group),
+.bubble-size-toggle :deep(.q-btn-group) {
+    gap: 4px;
+}
+
+/* Each button gets its own rounded corners now that they are separated */
+.ci-toggle :deep(.q-btn),
+.bubble-size-toggle :deep(.q-btn) {
+    border-radius: 4px !important;
+}
+
+/* Inactive options: visible fill + border + slightly darker text */
+.ci-toggle :deep(.q-btn:not(.q-btn--active)),
+.bubble-size-toggle :deep(.q-btn:not(.q-btn--active)) {
+    background-color: #eef2f7;
+    border: 1px solid #b8c4d4 !important;
+    color: #374151;
+}
+
+/* Hover state for inactive options */
+.ci-toggle :deep(.q-btn:not(.q-btn--active):hover),
+.bubble-size-toggle :deep(.q-btn:not(.q-btn--active):hover) {
+    background-color: #dce8f4;
 }
 
 @media (max-width: 1200px) {
