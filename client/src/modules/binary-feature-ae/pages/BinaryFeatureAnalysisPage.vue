@@ -36,116 +36,136 @@
                 </q-card-section>
 
                 <q-card-section class="q-pt-none">
-                    <!-- Row 1: Category + Search -->
-                    <div class="row q-col-gutter-md">
-                        <div class="col-12 col-md-3">
-                            <q-select
-                                v-model="categories"
-                                :options="categoryOptions"
-                                label="Category"
-                                emit-value
-                                map-options
-                                multiple
-                                outlined
-                                dense
-                                options-dense
-                                clearable
-                            />
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <q-input
-                                v-model="searchText"
-                                outlined
-                                dense
-                                label="Search"
-                                placeholder="Rule id, name, category"
-                                clearable
-                            />
-                        </div>
-                    </div>
-
-                    <!-- Row 2: Min Hit Count + Min Claim Count -->
-                    <div class="row q-col-gutter-md q-mt-sm">
-                        <div class="col-12 col-md-3">
-                            <q-input
-                                v-model.number="minHitCount"
-                                type="number"
-                                outlined
-                                dense
-                                label="Min Hit Count"
-                            />
-                        </div>
-                        <div class="col-12 col-md-3">
-                            <q-input
-                                v-model.number="minClaimCount"
-                                type="number"
-                                outlined
-                                dense
-                                label="Min Claim Count"
-                            />
-                        </div>
-                    </div>
-
-                    <!-- Row 3: Confidence Interval Level + Significance -->
-                    <div class="row q-col-gutter-md q-mt-sm">
-                        <div class="col-12 col-md-4">
-                            <div class="text-caption text-grey-7 q-mb-xs">
-                                Confidence Interval Level
-                            </div>
-                            <q-btn-toggle
-                                v-model="ciLevel"
-                                spread
-                                unelevated
-                                toggle-color="primary"
-                                :options="ciLevelToggleOptions"
-                            />
-                        </div>
-                        <div class="col-12 col-md-2">
-                            <q-select
-                                v-model="significanceValues"
-                                :options="significanceOptions"
-                                label="Significance"
-                                emit-value
-                                map-options
-                                multiple
-                                outlined
-                                dense
-                                options-dense
-                            />
-                        </div>
-                    </div>
-
-                    <!-- Row 4: X-Axis Display Cap + Y-Axis Display Cap -->
-                    <div class="row q-col-gutter-md q-mt-md">
+                    <div class="row">
                         <div class="col-12 col-md-6">
-                            <div class="row items-center justify-between q-mb-xs">
-                                <div class="text-caption text-grey-7">X-Axis Display Cap</div>
-                                <div class="text-caption text-grey-7">{{ xDisplayCap }}%</div>
-                            </div>
-                            <q-slider
-                                v-model="xDisplayCap"
-                                :min="0"
-                                :max="100"
-                                :step="1"
-                                label
-                                switch-label-side
-                            />
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <div class="row items-center justify-between q-mb-xs">
-                                <div class="text-caption text-grey-7">Y-Axis Display Cap</div>
-                                <div class="text-caption text-grey-7">
-                                    {{ displayCap.toFixed(1) }}
+                            <!-- Row 1: Category + Search -->
+                            <div class="row q-col-gutter-md">
+                                <div class="col-12 col-sm-6">
+                                    <q-select
+                                        v-model="categories"
+                                        :options="categoryOptions"
+                                        label="Category"
+                                        emit-value
+                                        map-options
+                                        multiple
+                                        outlined
+                                        dense
+                                        options-dense
+                                        clearable
+                                    />
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <q-input
+                                        v-model="searchText"
+                                        outlined
+                                        dense
+                                        label="Search"
+                                        placeholder="Rule id, name, category"
+                                        clearable
+                                    />
                                 </div>
                             </div>
-                            <q-slider
-                                v-model="displayCap"
-                                :min="0"
-                                :max="5"
-                                :step="0.1"
-                                label
-                                switch-label-side
-                            />
+
+                            <!-- Row 2: Min Hit Count + Min Claim Count -->
+                            <div class="row q-col-gutter-md q-mt-sm">
+                                <div class="col-12 col-sm-6">
+                                    <q-input
+                                        v-model.number="minHitCount"
+                                        type="number"
+                                        outlined
+                                        dense
+                                        label="Min Hit Count"
+                                    />
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <q-input
+                                        v-model.number="minClaimCount"
+                                        type="number"
+                                        outlined
+                                        dense
+                                        label="Min Claim Count"
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- Row 3: Confidence Interval Level + Significance -->
+                            <div class="row q-col-gutter-md q-mt-sm">
+                                <div class="col-12 col-sm-7">
+                                    <div class="text-caption text-grey-7 q-mb-xs">
+                                        Confidence Interval Level
+                                    </div>
+                                    <q-btn-toggle
+                                        v-model="ciLevel"
+                                        spread
+                                        unelevated
+                                        toggle-color="primary"
+                                        :options="ciLevelToggleOptions"
+                                    />
+                                </div>
+                                <div class="col-12 col-sm-5">
+                                    <q-select
+                                        v-model="significanceValues"
+                                        :options="significanceOptions"
+                                        label="Significance"
+                                        emit-value
+                                        map-options
+                                        multiple
+                                        outlined
+                                        dense
+                                        options-dense
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- Row 4: X-Axis Display Cap -->
+                            <div class="q-mt-md">
+                                <div class="text-caption text-grey-7 q-mb-xs">
+                                    X-Axis Display Cap
+                                </div>
+                                <div class="row items-center q-gutter-x-sm no-wrap">
+                                    <q-slider
+                                        v-model="xDisplayCap"
+                                        :min="0"
+                                        :max="100"
+                                        :step="1"
+                                        class="col"
+                                    />
+                                    <q-input
+                                        v-model.number="xDisplayCap"
+                                        type="number"
+                                        dense
+                                        outlined
+                                        suffix="%"
+                                        style="width: 88px"
+                                        @blur="clampX"
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- Row 5: Y-Axis Display Cap -->
+                            <div class="q-mt-md">
+                                <div class="text-caption text-grey-7 q-mb-xs">
+                                    Y-Axis Display Cap
+                                </div>
+                                <div class="row items-center q-gutter-x-sm no-wrap">
+                                    <q-slider
+                                        v-model="yDisplayCap"
+                                        :min="0"
+                                        :max="5"
+                                        :step="0.1"
+                                        class="col"
+                                    />
+                                    <q-input
+                                        v-model.number="yDisplayCap"
+                                        type="number"
+                                        dense
+                                        outlined
+                                        inputmode="decimal"
+                                        style="width: 80px"
+                                        @blur="clampY"
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </q-card-section>
@@ -225,7 +245,7 @@
                             <BinaryFeatureScatterPlot
                                 :rows="rows"
                                 :size-by="sizeBy"
-                                :display-cap="displayCap"
+                                :display-cap="yDisplayCap"
                                 :x-display-cap="xDisplayCap"
                                 :selected-row-ids="selectedRowIds"
                                 :focused-row-id="focusedRowId"
@@ -379,8 +399,18 @@ const minHitCount = ref<number | null>(0);
 const minClaimCount = ref<number | null>(5);
 const ciLevel = ref<BinaryFeatureCiLevel>('95');
 const sizeBy = ref<'hit_count' | 'claim_count'>('hit_count');
-const displayCap = ref(2.0);
+const yDisplayCap = ref(2.0);
 const xDisplayCap = ref(100);
+
+function clampX() {
+    const n = Number(xDisplayCap.value);
+    xDisplayCap.value = Math.min(100, Math.max(0, isNaN(n) ? 0 : n));
+}
+
+function clampY() {
+    const n = Number(yDisplayCap.value);
+    yDisplayCap.value = Math.min(5, Math.max(0, isNaN(n) ? 0 : n));
+}
 
 const selectedRowIds = ref<string[]>([]);
 const focusedRowId = ref<string | null>(null);
@@ -472,7 +502,7 @@ function resetInteractionState() {
     minClaimCount.value = 5;
     ciLevel.value = '95';
     sizeBy.value = 'hit_count';
-    displayCap.value = 2.0;
+    yDisplayCap.value = 2.0;
     xDisplayCap.value = 100;
     selectedRowIds.value = [];
     focusedRowId.value = null;
