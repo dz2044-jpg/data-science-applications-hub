@@ -290,7 +290,7 @@ async function renderCharts() {
             title: 'Selected Rule: Claim Mix (Share %)',
             barmode: 'stack',
             height: 260,
-            margin: { l: 90, r: 20, t: 50, b: 90 },
+            margin: { l: 90, r: 20, t: 50, b: 40 },
             xaxis: { title: '' },
             yaxis: { title: '' },
         },
