@@ -12,14 +12,6 @@
             </q-banner>
 
             <q-banner
-                v-if="missingConfigMessage"
-                class="bg-warning text-black q-mt-md"
-                rounded
-            >
-                {{ missingConfigMessage }}
-            </q-banner>
-
-            <q-banner
                 v-if="errorMsg"
                 class="bg-negative text-white q-mt-md"
                 rounded
@@ -29,334 +21,445 @@
 
             <q-card class="q-mt-md filter-card">
                 <q-card-section>
-                    <div class="text-h6">Filters</div>
+                    <div class="text-h6">Inputs</div>
                     <div class="text-body2 text-grey-7">
-                        {{ responseData?.dataset_name || activeDatasetName || 'Saved ruleset' }}
+                        Choose a saved Binary Feature dataset configuration from the Data
+                        Input page.
                     </div>
                 </q-card-section>
 
                 <q-card-section class="q-pt-none">
-                    <div class="row">
-                        <div class="col-12 col-md-6">
-                            <!-- Row 1: Category + Search -->
-                            <div class="row q-col-gutter-md">
-                                <div class="col-12 col-sm-6">
-                                    <q-select
-                                        v-model="categories"
-                                        :options="categoryOptions"
-                                        label="Category"
-                                        emit-value
-                                        map-options
-                                        multiple
-                                        outlined
-                                        dense
-                                        options-dense
-                                        clearable
-                                    />
-                                </div>
-                                <div class="col-12 col-sm-6">
-                                    <q-input
-                                        v-model="searchText"
-                                        outlined
-                                        dense
-                                        label="Search"
-                                        placeholder="Rule id, name, category"
-                                        clearable
-                                    />
-                                </div>
-                            </div>
-
-                            <!-- Row 2: Min Hit Count + Min Claim Count -->
-                            <div class="row q-col-gutter-md q-mt-sm">
-                                <div class="col-12 col-sm-6">
-                                    <q-input
-                                        v-model.number="minHitCount"
-                                        type="number"
-                                        outlined
-                                        dense
-                                        label="Min Hit Count"
-                                    />
-                                </div>
-                                <div class="col-12 col-sm-6">
-                                    <q-input
-                                        v-model.number="minClaimCount"
-                                        type="number"
-                                        outlined
-                                        dense
-                                        label="Min Claim Count"
-                                    />
-                                </div>
-                            </div>
-
-                            <!-- Row 3: Confidence Interval Level + Significance -->
-                            <div class="filter-group q-mt-sm">
-                                <div class="row q-col-gutter-md">
-                                    <div class="col-12 col-sm-6">
-                                        <div class="text-caption text-grey-7 q-mb-xs filter-group-label">
-                                            Confidence Interval Level
-                                        </div>
-                                        <q-option-group
-                                            v-model="ciLevel"
-                                            :options="ciLevelRadioOptions"
-                                            type="radio"
-                                            inline
-                                            dense
-                                            color="primary"
-                                            class="filter-option-group"
-                                        />
-                                    </div>
-                                    <div class="col-12 col-sm-6">
-                                        <div class="text-caption text-grey-7 q-mb-xs filter-group-label">
-                                            Significance
-                                        </div>
-                                        <q-option-group
-                                            v-model="significanceValues"
-                                            :options="significanceOptions"
-                                            type="checkbox"
-                                            inline
-                                            dense
-                                            color="primary"
-                                            class="filter-option-group"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Axis Controls -->
-                            <div class="filter-group q-mt-sm">
-                                <!-- Row 4: X-Axis Display Cap -->
-                                <div>
-                                    <div class="text-caption text-grey-7 q-mb-xs">
-                                        X-Axis Display Cap
-                                    </div>
-                                    <div class="row items-center q-gutter-x-sm no-wrap">
-                                        <q-slider
-                                            v-model="xDisplayCap"
-                                            :min="0"
-                                            :max="100"
-                                            :step="1"
-                                            class="col"
-                                        />
-                                        <q-input
-                                            v-model.number="xDisplayCap"
-                                            type="number"
-                                            dense
-                                            outlined
-                                            suffix="%"
-                                            style="width: 88px"
-                                            @blur="clampX"
-                                        />
-                                    </div>
-                                </div>
-
-                                <!-- Row 5: Y-Axis Display Cap -->
-                                <div class="q-mt-md">
-                                    <div class="text-caption text-grey-7 q-mb-xs">
-                                        Y-Axis Display Cap
-                                    </div>
-                                    <div class="row items-center q-gutter-x-sm no-wrap">
-                                        <q-slider
-                                            v-model="yDisplayCap"
-                                            :min="0"
-                                            :max="5"
-                                            :step="0.1"
-                                            class="col"
-                                        />
-                                        <q-input
-                                            v-model.number="yDisplayCap"
-                                            type="number"
-                                            dense
-                                            outlined
-                                            inputmode="decimal"
-                                            style="width: 80px"
-                                            @blur="clampY"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="row items-center q-col-gutter-md q-mb-md">
+                        <div class="col-12">
+                            <q-select
+                                v-model="selectedConfigId"
+                                :options="configOptions"
+                                emit-value
+                                map-options
+                                outlined
+                                dense
+                                label="Select Saved Dataset Configuration"
+                                class="input-600"
+                                clearable
+                                :loading="configsLoading"
+                                hint="Choose a previously configured dataset from the Data Input page"
+                            >
+                                <template #prepend>
+                                    <q-icon name="folder_open" />
+                                </template>
+                            </q-select>
                         </div>
+                    </div>
+
+                    <div v-if="activeConfig">
+                        <q-banner class="bg-green-1" dense>
+                            <template #avatar>
+                                <q-icon name="check_circle" color="positive" />
+                            </template>
+                            <strong>{{
+                                selectedConfig?.dataset_name || activeConfig.dataset_name
+                            }}</strong>
+                            loaded successfully
+                            <br />File and column mappings loaded automatically from the
+                            saved configuration
+                        </q-banner>
+                    </div>
+
+                    <div v-else-if="!configsLoading && !hasSavedConfigs">
+                        <q-banner class="bg-grey-3" dense>
+                            <template #avatar>
+                                <q-icon name="info" color="grey-7" />
+                            </template>
+                            No saved Binary Feature configurations were found. Go to
+                            <strong>Central Setup</strong> to upload a file and save a
+                            configuration first.
+                        </q-banner>
+                    </div>
+
+                    <div v-else>
+                        <q-banner class="bg-grey-3" dense>
+                            <template #avatar>
+                                <q-icon name="info" color="grey-7" />
+                            </template>
+                            Select a saved Binary Feature dataset configuration above to
+                            load a ruleset for analysis.
+                        </q-banner>
                     </div>
                 </q-card-section>
             </q-card>
 
-            <div
-                v-if="responseData"
-                class="kpi-grid q-mt-md"
-            >
-                <q-card class="kpi-card">
+            <template v-if="activeConfig">
+                <q-card class="q-mt-md filter-card">
                     <q-card-section>
-                        <div class="text-caption text-grey-7">Visible Rules</div>
-                        <div class="text-h5">{{ formatWholeNumber(responseData.kpis.visible_rule_count) }}</div>
+                        <div class="text-h6">Filters</div>
+                        <div class="text-body2 text-grey-7">
+                            {{
+                                responseData?.dataset_name ||
+                                selectedConfig?.dataset_name ||
+                                activeDatasetName ||
+                                'Saved ruleset'
+                            }}
+                        </div>
                     </q-card-section>
-                </q-card>
-                <q-card class="kpi-card">
-                    <q-card-section>
-                        <div class="text-caption text-grey-7">Median Hit Rate</div>
-                        <div class="text-h5">{{ formatPercentFromRatio(responseData.kpis.median_hit_rate) }}</div>
-                    </q-card-section>
-                </q-card>
-                <q-card class="kpi-card">
-                    <q-card-section>
-                        <div class="text-caption text-grey-7">Median Claim Count</div>
-                        <div class="text-h5">{{ formatWholeNumber(responseData.kpis.median_claim_count) }}</div>
-                    </q-card-section>
-                </q-card>
-                <q-card class="kpi-card">
-                    <q-card-section>
-                        <div class="text-caption text-grey-7">Median A/E</div>
-                        <div class="text-h5">{{ responseData.kpis.median_ae.toFixed(3) }}</div>
-                    </q-card-section>
-                </q-card>
-                <q-card class="kpi-card">
-                    <q-card-section>
-                        <div class="text-caption text-grey-7">Elevated</div>
-                        <div class="text-h5">{{ formatWholeNumber(responseData.kpis.elevated_count) }}</div>
-                    </q-card-section>
-                </q-card>
-                <q-card class="kpi-card">
-                    <q-card-section>
-                        <div class="text-caption text-grey-7">Uncertain</div>
-                        <div class="text-h5">{{ formatWholeNumber(responseData.kpis.uncertain_count) }}</div>
-                    </q-card-section>
-                </q-card>
-                <q-card class="kpi-card">
-                    <q-card-section>
-                        <div class="text-caption text-grey-7">Below Expected</div>
-                        <div class="text-h5">
-                            {{ formatWholeNumber(responseData.kpis.below_expected_count) }}
+
+                    <q-card-section class="q-pt-none">
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <!-- Row 1: Category + Search -->
+                                <div class="row q-col-gutter-md">
+                                    <div class="col-12 col-sm-6">
+                                        <q-select
+                                            v-model="categories"
+                                            :options="categoryOptions"
+                                            label="Category"
+                                            emit-value
+                                            map-options
+                                            multiple
+                                            outlined
+                                            dense
+                                            options-dense
+                                            clearable
+                                        />
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <q-input
+                                            v-model="searchText"
+                                            outlined
+                                            dense
+                                            label="Search"
+                                            placeholder="Rule id, name, category"
+                                            clearable
+                                        />
+                                    </div>
+                                </div>
+
+                                <!-- Row 2: Min Hit Count + Min Claim Count -->
+                                <div class="row q-col-gutter-md q-mt-sm">
+                                    <div class="col-12 col-sm-6">
+                                        <q-input
+                                            v-model.number="minHitCount"
+                                            type="number"
+                                            outlined
+                                            dense
+                                            label="Min Hit Count"
+                                        />
+                                    </div>
+                                    <div class="col-12 col-sm-6">
+                                        <q-input
+                                            v-model.number="minClaimCount"
+                                            type="number"
+                                            outlined
+                                            dense
+                                            label="Min Claim Count"
+                                        />
+                                    </div>
+                                </div>
+
+                                <!-- Row 3: Confidence Interval Level + Significance -->
+                                <div class="filter-group q-mt-sm">
+                                    <div class="row q-col-gutter-md">
+                                        <div class="col-12 col-sm-6">
+                                            <div class="text-caption text-grey-7 q-mb-xs filter-group-label">
+                                                Confidence Interval Level
+                                            </div>
+                                            <q-option-group
+                                                v-model="ciLevel"
+                                                :options="ciLevelRadioOptions"
+                                                type="radio"
+                                                inline
+                                                dense
+                                                color="primary"
+                                                class="filter-option-group"
+                                            />
+                                        </div>
+                                        <div class="col-12 col-sm-6">
+                                            <div class="text-caption text-grey-7 q-mb-xs filter-group-label">
+                                                Significance
+                                            </div>
+                                            <q-option-group
+                                                v-model="significanceValues"
+                                                :options="significanceOptions"
+                                                type="checkbox"
+                                                inline
+                                                dense
+                                                color="primary"
+                                                class="filter-option-group"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Axis Controls -->
+                                <div class="filter-group q-mt-sm">
+                                    <!-- Row 4: X-Axis Display Cap -->
+                                    <div>
+                                        <div class="text-caption text-grey-7 q-mb-xs">
+                                            X-Axis Display Cap
+                                        </div>
+                                        <div class="row items-center q-gutter-x-sm no-wrap">
+                                            <q-slider
+                                                v-model="xDisplayCap"
+                                                :min="0"
+                                                :max="100"
+                                                :step="1"
+                                                class="col"
+                                            />
+                                            <q-input
+                                                v-model.number="xDisplayCap"
+                                                type="number"
+                                                dense
+                                                outlined
+                                                suffix="%"
+                                                style="width: 88px"
+                                                @blur="clampX"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <!-- Row 5: Y-Axis Display Cap -->
+                                    <div class="q-mt-md">
+                                        <div class="text-caption text-grey-7 q-mb-xs">
+                                            Y-Axis Display Cap
+                                        </div>
+                                        <div class="row items-center q-gutter-x-sm no-wrap">
+                                            <q-slider
+                                                v-model="yDisplayCap"
+                                                :min="0"
+                                                :max="5"
+                                                :step="0.1"
+                                                class="col"
+                                            />
+                                            <q-input
+                                                v-model.number="yDisplayCap"
+                                                type="number"
+                                                dense
+                                                outlined
+                                                inputmode="decimal"
+                                                style="width: 80px"
+                                                @blur="clampY"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </q-card-section>
                 </q-card>
-            </div>
 
-            <div class="row q-col-gutter-md q-mt-md">
-                <div class="col-12 col-lg-8">
-                    <q-card class="section-card">
+                <q-card
+                    v-if="loading && !responseData"
+                    class="q-mt-md section-card"
+                >
+                    <q-card-section class="row items-center q-gutter-sm">
+                        <q-spinner color="primary" size="24px" />
+                        <span class="text-body2">Loading saved ruleset...</span>
+                    </q-card-section>
+                </q-card>
+
+                <div
+                    v-if="responseData"
+                    class="kpi-grid q-mt-md"
+                >
+                    <q-card class="kpi-card">
                         <q-card-section>
-                            <div class="row items-center justify-between">
-                                <div class="text-h6">Rule Scatter</div>
-                                <div class="row items-center q-gutter-x-sm">
-                                    <span class="text-caption text-grey-7">Bubble Size</span>
-                                    <q-btn-toggle
-                                        v-model="sizeBy"
-                                        unelevated
-                                        class="bubble-size-toggle"
-                                        toggle-color="primary"
-                                        :options="[
-                                            { label: 'Hit Count', value: 'hit_count' },
-                                            { label: 'Claim Count', value: 'claim_count' },
-                                        ]"
-                                    />
-                                </div>
+                            <div class="text-caption text-grey-7">Visible Rules</div>
+                            <div class="text-h5">
+                                {{ formatWholeNumber(responseData.kpis.visible_rule_count) }}
                             </div>
                         </q-card-section>
-                        <q-card-section class="q-pt-none scatter-card">
-                            <BinaryFeatureScatterPlot
-                                :rows="rows"
-                                :size-by="sizeBy"
-                                :display-cap="yDisplayCap"
-                                :x-display-cap="xDisplayCap"
-                                :selected-row-ids="selectedRowIds"
-                                :focused-row-id="focusedRowId"
-                                @update:selected-row-ids="selectedRowIds = $event"
-                                @focus-row="focusedRowId = $event"
-                            />
-                            <q-inner-loading :showing="loading">
-                                <q-spinner color="primary" size="42px" />
-                            </q-inner-loading>
+                    </q-card>
+                    <q-card class="kpi-card">
+                        <q-card-section>
+                            <div class="text-caption text-grey-7">Median Hit Rate</div>
+                            <div class="text-h5">
+                                {{ formatPercentFromRatio(responseData.kpis.median_hit_rate) }}
+                            </div>
                         </q-card-section>
                     </q-card>
-
+                    <q-card class="kpi-card">
+                        <q-card-section>
+                            <div class="text-caption text-grey-7">Median Claim Count</div>
+                            <div class="text-h5">
+                                {{ formatWholeNumber(responseData.kpis.median_claim_count) }}
+                            </div>
+                        </q-card-section>
+                    </q-card>
+                    <q-card class="kpi-card">
+                        <q-card-section>
+                            <div class="text-caption text-grey-7">Median A/E</div>
+                            <div class="text-h5">
+                                {{ responseData.kpis.median_ae.toFixed(3) }}
+                            </div>
+                        </q-card-section>
+                    </q-card>
+                    <q-card class="kpi-card">
+                        <q-card-section>
+                            <div class="text-caption text-grey-7">Elevated</div>
+                            <div class="text-h5">
+                                {{ formatWholeNumber(responseData.kpis.elevated_count) }}
+                            </div>
+                        </q-card-section>
+                    </q-card>
+                    <q-card class="kpi-card">
+                        <q-card-section>
+                            <div class="text-caption text-grey-7">Uncertain</div>
+                            <div class="text-h5">
+                                {{ formatWholeNumber(responseData.kpis.uncertain_count) }}
+                            </div>
+                        </q-card-section>
+                    </q-card>
+                    <q-card class="kpi-card">
+                        <q-card-section>
+                            <div class="text-caption text-grey-7">Below Expected</div>
+                            <div class="text-h5">
+                                {{ formatWholeNumber(responseData.kpis.below_expected_count) }}
+                            </div>
+                        </q-card-section>
+                    </q-card>
                 </div>
-                <div class="col-12 col-lg-4">
+
+                <div
+                    v-if="responseData"
+                    class="row q-col-gutter-md q-mt-md"
+                >
+                    <div class="col-12 col-lg-8">
+                        <q-card class="section-card">
+                            <q-card-section>
+                                <div class="row items-center justify-between">
+                                    <div class="text-h6">Rule Scatter</div>
+                                    <div class="row items-center q-gutter-x-sm">
+                                        <span class="text-caption text-grey-7">Bubble Size</span>
+                                        <q-btn-toggle
+                                            v-model="sizeBy"
+                                            unelevated
+                                            class="bubble-size-toggle"
+                                            toggle-color="primary"
+                                            :options="[
+                                                { label: 'Hit Count', value: 'hit_count' },
+                                                { label: 'Claim Count', value: 'claim_count' },
+                                            ]"
+                                        />
+                                    </div>
+                                </div>
+                            </q-card-section>
+                            <q-card-section class="q-pt-none scatter-card">
+                                <BinaryFeatureScatterPlot
+                                    :rows="rows"
+                                    :size-by="sizeBy"
+                                    :display-cap="yDisplayCap"
+                                    :x-display-cap="xDisplayCap"
+                                    :selected-row-ids="selectedRowIds"
+                                    :focused-row-id="focusedRowId"
+                                    @update:selected-row-ids="selectedRowIds = $event"
+                                    @focus-row="focusedRowId = $event"
+                                />
+                                <q-inner-loading :showing="loading">
+                                    <q-spinner color="primary" size="42px" />
+                                </q-inner-loading>
+                            </q-card-section>
+                        </q-card>
+                    </div>
+                    <div class="col-12 col-lg-4">
+                        <BinaryFeatureDetailCards
+                            :rows="rows"
+                            :focused-row-id="focusedRowId"
+                            :ci-level="ciLevel"
+                            :show-charts="false"
+                        />
+
+                        <q-card class="q-mt-md section-card">
+                            <q-card-section class="row items-center justify-between">
+                                <div class="text-h6">Pinned Rules</div>
+                                <div class="row q-gutter-sm">
+                                    <q-btn
+                                        label="Pin Focused Rule"
+                                        color="primary"
+                                        unelevated
+                                        dense
+                                        :disable="!focusedRow"
+                                        @click="pinFocusedRule"
+                                    />
+                                    <q-btn
+                                        label="Clear Pins"
+                                        color="grey-7"
+                                        flat
+                                        dense
+                                        :disable="pinnedRules.length === 0"
+                                        @click="clearPins"
+                                    />
+                                </div>
+                            </q-card-section>
+                            <q-card-section>
+                                <div
+                                    v-if="!pinnedRules.length"
+                                    class="text-grey-7"
+                                >
+                                    No pinned rules yet.
+                                </div>
+                                <q-list v-else dense separator>
+                                    <q-item
+                                        v-for="rule in pinnedRules"
+                                        :key="rule.row_id"
+                                    >
+                                        <q-item-section>
+                                            <q-item-label class="text-weight-medium">
+                                                {{ rule.rule }}
+                                            </q-item-label>
+                                            <q-item-label caption>
+                                                {{ rule.RuleName }}
+                                            </q-item-label>
+                                        </q-item-section>
+                                        <q-item-section side top>
+                                            <div class="text-caption">
+                                                A/E {{ rule.ae_ratio.toFixed(3) }}
+                                            </div>
+                                            <q-badge color="grey-8" class="q-mt-xs">
+                                                {{ rule.significance_class }}
+                                            </q-badge>
+                                        </q-item-section>
+                                    </q-item>
+                                </q-list>
+                            </q-card-section>
+                        </q-card>
+                    </div>
+                </div>
+
+                <div
+                    v-if="responseData"
+                    class="q-mt-md"
+                >
                     <BinaryFeatureDetailCards
                         :rows="rows"
                         :focused-row-id="focusedRowId"
                         :ci-level="ciLevel"
-                        :show-charts="false"
+                        :show-summary="false"
                     />
-
-                    <q-card class="q-mt-md section-card">
-                        <q-card-section class="row items-center justify-between">
-                            <div class="text-h6">Pinned Rules</div>
-                            <div class="row q-gutter-sm">
-                                <q-btn
-                                    label="Pin Focused Rule"
-                                    color="primary"
-                                    unelevated
-                                    dense
-                                    :disable="!focusedRow"
-                                    @click="pinFocusedRule"
-                                />
-                                <q-btn
-                                    label="Clear Pins"
-                                    color="grey-7"
-                                    flat
-                                    dense
-                                    :disable="pinnedRules.length === 0"
-                                    @click="clearPins"
-                                />
-                            </div>
-                        </q-card-section>
-                        <q-card-section>
-                            <div
-                                v-if="!pinnedRules.length"
-                                class="text-grey-7"
-                            >
-                                No pinned rules yet.
-                            </div>
-                            <q-list v-else dense separator>
-                                <q-item
-                                    v-for="rule in pinnedRules"
-                                    :key="rule.row_id"
-                                >
-                                    <q-item-section>
-                                        <q-item-label class="text-weight-medium">
-                                            {{ rule.rule }}
-                                        </q-item-label>
-                                        <q-item-label caption>
-                                            {{ rule.RuleName }}
-                                        </q-item-label>
-                                    </q-item-section>
-                                    <q-item-section side top>
-                                        <div class="text-caption">A/E {{ rule.ae_ratio.toFixed(3) }}</div>
-                                        <q-badge color="grey-8" class="q-mt-xs">
-                                            {{ rule.significance_class }}
-                                        </q-badge>
-                                    </q-item-section>
-                                </q-item>
-                            </q-list>
-                        </q-card-section>
-                    </q-card>
                 </div>
-            </div>
 
-            <div class="q-mt-md">
-                <BinaryFeatureDetailCards
-                    :rows="rows"
-                    :focused-row-id="focusedRowId"
-                    :ci-level="ciLevel"
-                    :show-summary="false"
-                />
-            </div>
+                <q-card
+                    v-if="responseData"
+                    class="q-mt-md section-card"
+                >
+                    <q-card-section>
+                        <div class="text-h6">Compare / Triage Table</div>
+                    </q-card-section>
+                    <q-card-section class="q-pt-none">
+                        <BinaryFeatureGrid
+                            :rows="rows"
+                            :selected-row-ids="selectedRowIds"
+                            @update:selected-row-ids="selectedRowIds = $event"
+                            @focus-row="focusedRowId = $event"
+                        />
+                    </q-card-section>
+                </q-card>
 
-            <q-card class="q-mt-md section-card">
-                <q-card-section>
-                    <div class="text-h6">Compare / Triage Table</div>
-                </q-card-section>
-                <q-card-section class="q-pt-none">
-                    <BinaryFeatureGrid
-                        :rows="rows"
-                        :selected-row-ids="selectedRowIds"
-                        @update:selected-row-ids="selectedRowIds = $event"
-                        @focus-row="focusedRowId = $event"
-                    />
-                </q-card-section>
-            </q-card>
-
-            <div class="q-mt-md">
-                <BinaryFeatureCompareCharts :selected-rows="selectedRows" />
-            </div>
+                <div
+                    v-if="responseData"
+                    class="q-mt-md"
+                >
+                    <BinaryFeatureCompareCharts :selected-rows="selectedRows" />
+                </div>
+            </template>
         </div>
     </q-page>
 </template>
@@ -374,10 +477,6 @@ import {
     CI_LEVEL_OPTIONS,
     SIGNIFICANCE_OPTIONS,
 } from '@/modules/binary-feature-ae/constants';
-import {
-    isBinaryFeatureDatasetConfig,
-    type ApiDatasetConfig,
-} from '@/types/dataset-config';
 import type {
     ApiBinaryFeatureCalculateResponse,
     ApiBinaryFeatureRow,
@@ -386,16 +485,21 @@ import type {
     BinaryFeatureSignificance,
 } from '@/types/binary-feature-ae';
 import {
-    formatPercentFromRatio,
-    formatWholeNumber,
-} from '@/utils/format';
+    isBinaryFeatureDatasetConfig,
+    type ApiDatasetConfig,
+} from '@/types/dataset-config';
+import { formatPercentFromRatio, formatWholeNumber } from '@/utils/format';
 import {
     getDatasetConfig,
+    getDatasetConfigs,
     postBinaryFeatureCalculate,
 } from '@/utils/api';
 
 const route = useRoute();
 
+const configs = ref<ApiDatasetConfig[]>([]);
+const configsLoading = ref(false);
+const selectedConfigId = ref<string | null>(null);
 const loading = ref(false);
 const errorMsg = ref<string | null>(null);
 const responseData = ref<ApiBinaryFeatureCalculateResponse | null>(null);
@@ -427,18 +531,35 @@ const pinnedRules = ref<BinaryFeaturePinnedRule[]>([]);
 
 const activeConfig = ref<ApiDatasetConfig | null>(null);
 let abortController: AbortController | null = null;
+let configSelectionRequestId = 0;
 
-const configId = computed(() => {
+const routeConfigId = computed(() => {
     const raw = route.query.config;
     return typeof raw === 'string' && raw.trim() ? raw : null;
 });
 
-const missingConfigMessage = computed(() => {
-    if (configId.value) {
+const binaryConfigs = computed(() =>
+    configs.value.filter((config) => config.module_id === 'binary_feature_ae'),
+);
+
+const selectedConfig = computed(() => {
+    if (!selectedConfigId.value) {
         return null;
     }
-    return 'Open this module from Central Setup or a saved configuration so the analysis can load a config-backed dataset.';
+
+    return (
+        binaryConfigs.value.find((config) => config.id === selectedConfigId.value) ?? null
+    );
 });
+
+const configOptions = computed(() =>
+    binaryConfigs.value.map((config) => ({
+        label: `${config.dataset_name} (${config.file_path})`,
+        value: config.id,
+    })),
+);
+
+const hasSavedConfigs = computed(() => configOptions.value.length > 0);
 
 const categoryOptions = computed(() => {
     return (responseData.value?.available_categories ?? []).map((category) => ({
@@ -463,6 +584,7 @@ const focusedRow = computed(() => {
     if (!focusedRowId.value) {
         return null;
     }
+
     return rows.value.find((row) => row.row_id === focusedRowId.value) ?? null;
 });
 
@@ -480,6 +602,7 @@ function useDebouncedRef<T>(source: { value: T }, delayMs: number) {
             if (timer !== null) {
                 window.clearTimeout(timer);
             }
+
             timer = window.setTimeout(() => {
                 debounced.value = value;
             }, delayMs);
@@ -499,7 +622,10 @@ const debouncedSearchText = useDebouncedRef(searchText, 250);
 const debouncedMinHitCount = useDebouncedRef(minHitCount, 250);
 const debouncedMinClaimCount = useDebouncedRef(minClaimCount, 250);
 
-function resetInteractionState() {
+function resetDatasetState() {
+    abortController?.abort();
+    abortController = null;
+    loading.value = false;
     activeConfig.value = null;
     activeDatasetName.value = null;
     responseData.value = null;
@@ -518,28 +644,60 @@ function resetInteractionState() {
     pinnedRules.value = [];
 }
 
-async function ensureBinaryFeatureConfig() {
-    if (!configId.value) {
-        activeConfig.value = null;
-        activeDatasetName.value = null;
-        return false;
-    }
-
-    const config = await getDatasetConfig(configId.value);
+async function ensureBinaryFeatureConfig(configId: string) {
+    const config = await getDatasetConfig(configId);
     if (!isBinaryFeatureDatasetConfig(config)) {
         throw new Error('Selected configuration is not a Binary Feature Mortality A/E config.');
     }
+
     if (config.performance_type !== BINARY_FEATURE_PERFORMANCE_TYPE) {
         throw new Error('Selected configuration uses an unexpected performance type.');
     }
 
-    activeConfig.value = config;
-    activeDatasetName.value = config.dataset_name;
-    return true;
+    return config;
+}
+
+async function loadConfigs() {
+    configsLoading.value = true;
+
+    try {
+        const result = await getDatasetConfigs();
+        configs.value = result.configs;
+    } catch (err) {
+        console.error('Failed to load dataset configs:', err);
+    } finally {
+        configsLoading.value = false;
+    }
+}
+
+async function handleSelectedConfigChange(configId: string | null) {
+    const requestId = configSelectionRequestId + 1;
+    configSelectionRequestId = requestId;
+    resetDatasetState();
+
+    if (!configId) {
+        return;
+    }
+
+    try {
+        const config = await ensureBinaryFeatureConfig(configId);
+        if (requestId !== configSelectionRequestId) {
+            return;
+        }
+
+        activeConfig.value = config;
+        activeDatasetName.value = config.dataset_name;
+    } catch (err) {
+        if (requestId !== configSelectionRequestId) {
+            return;
+        }
+
+        errorMsg.value = err instanceof Error ? err.message : String(err);
+    }
 }
 
 async function loadData() {
-    if (!configId.value || !activeConfig.value) {
+    if (!selectedConfigId.value || !activeConfig.value) {
         return;
     }
 
@@ -553,7 +711,7 @@ async function loadData() {
     try {
         const result = await postBinaryFeatureCalculate(
             {
-                config_id: configId.value,
+                config_id: activeConfig.value.id,
                 ci_level: ciLevel.value,
                 categories: categories.value,
                 significance_values: significanceValues.value,
@@ -569,6 +727,7 @@ async function loadData() {
         if (signal.aborted) {
             return;
         }
+
         errorMsg.value = err instanceof Error ? err.message : String(err);
     } finally {
         if (!signal.aborted) {
@@ -603,26 +762,24 @@ function clearPins() {
 }
 
 watch(
-    () => configId.value,
-    async () => {
-        resetInteractionState();
+    () => routeConfigId.value,
+    (configId) => {
+        selectedConfigId.value = configId;
+    },
+    { immediate: true },
+);
 
-        if (!configId.value) {
-            return;
-        }
-
-        try {
-            await ensureBinaryFeatureConfig();
-        } catch (err) {
-            errorMsg.value = err instanceof Error ? err.message : String(err);
-        }
+watch(
+    () => selectedConfigId.value,
+    (configId) => {
+        void handleSelectedConfigChange(configId);
     },
     { immediate: true },
 );
 
 watch(
     () => [
-        configId.value,
+        selectedConfigId.value,
         activeConfig.value?.id,
         categories.value,
         significanceValues.value,
@@ -632,9 +789,10 @@ watch(
         debouncedMinClaimCount.value,
     ],
     () => {
-        if (!configId.value || !activeConfig.value) {
+        if (!selectedConfigId.value || !activeConfig.value) {
             return;
         }
+
         void loadData();
     },
     { deep: true },
@@ -658,6 +816,7 @@ watch(
         if (!ids.length) {
             return;
         }
+
         if (!focusedRowId.value || !ids.includes(focusedRowId.value)) {
             focusedRowId.value = ids[0];
         }
@@ -683,9 +842,7 @@ watch(
 );
 
 onMounted(() => {
-    if (!configId.value) {
-        errorMsg.value = null;
-    }
+    void loadConfigs();
 });
 
 onBeforeUnmount(() => {
@@ -698,7 +855,12 @@ onBeforeUnmount(() => {
     max-width: 100%;
 }
 
-/* ── Filter card ─────────────────────────────────────────── */
+.input-600 {
+    width: 600px;
+    max-width: 100%;
+}
+
+/* Filter card */
 .filter-card {
     background: #fafafa;
     border: 1px solid #e3e3e3;
@@ -731,14 +893,14 @@ onBeforeUnmount(() => {
     color: #374151;
 }
 
-/* ── Section cards (scatter, pinned rules, compare) ──────── */
+/* Section cards */
 .section-card {
     border: 1px solid #dde2ea;
     border-radius: 8px;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.06);
 }
 
-/* ── KPI metric cards ────────────────────────────────────── */
+/* KPI metric cards */
 .kpi-grid {
     display: grid;
     gap: 12px;
@@ -756,7 +918,7 @@ onBeforeUnmount(() => {
     position: relative;
 }
 
-/* ── Toggle buttons: Bubble Size ────────────────────────── */
+/* Toggle buttons: Bubble Size */
 
 /* Separate the flush-joined buttons with a visible gap */
 .bubble-size-toggle :deep(.q-btn-group) {
