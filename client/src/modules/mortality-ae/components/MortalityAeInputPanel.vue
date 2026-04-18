@@ -43,7 +43,7 @@
                             class="input-600"
                             clearable
                             :loading="model.configsLoading"
-                            hint="Choose a previously configured dataset from the Data Input page"
+                            hint="Choose a previously configured dataset from Central Setup"
                         >
                             <template #prepend>
                                 <q-icon name="folder_open" />

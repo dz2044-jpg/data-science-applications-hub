@@ -1,37 +1,33 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
-from app.models.ae import (
+from app.modules.mortality_ae.models.ae import (
     ApiAePolynomialFitParameters,
     ApiAeUnivariateParameters,
     ApiAeXVariableCategorical,
     ApiAeXVariableNumeric,
     ApiNumericBinning,
 )
-from app.service.ae_univariate import perform_ae_univariate
+from app.modules.mortality_ae.service.ae_univariate import (
+    perform_ae_univariate_from_upload,
+)
 
 
 def test_service_returns_split_results_when_split_variable_provided(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    (tmp_path / "data.csv").write_text(
-        "application_number,MEC,MAC,age,sex\n"
-        "a1,10,9,20,M\n"
-        "a2,10,11,30,F\n"
-        "a3,10,10,40,M\n",
-        encoding="utf-8",
-    )
-    monkeypatch.setenv("INSIGHT_HUB_DATA_DIR", str(tmp_path))
-    monkeypatch.setenv(
-        "INSIGHT_HUB_APPLICATION_ID_COLUMN", "application_number"
-    )
+    monkeypatch.setenv("INSIGHT_HUB_APPLICATION_ID_COLUMN", "application_number")
 
-    result = perform_ae_univariate(
+    result = perform_ae_univariate_from_upload(
+        file_bytes=(
+            b"application_number,MEC,MAC,age,sex\n"
+            b"a1,10,9,20,M\n"
+            b"a2,10,11,30,F\n"
+            b"a3,10,10,40,M\n"
+        ),
+        filename="data.csv",
         params=ApiAeUnivariateParameters(
-            dataset_name="data.csv",
             x_variable=ApiAeXVariableNumeric(
                 name="age",
                 binning=ApiNumericBinning.UNIFORM,

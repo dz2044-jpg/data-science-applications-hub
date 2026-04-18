@@ -12,12 +12,6 @@ import type {
     ApiAeUnivariateResults,
 } from './types';
 
-export async function postAeUnivariate(
-    params: ApiAeUnivariateParameters,
-): Promise<ApiAeUnivariateResults> {
-    return postJson<ApiAeUnivariateResults>('/api/ae/univariate', params);
-}
-
 export async function postAeUnivariateFromConfig(
     params: ApiAeUnivariateFromConfigParameters,
 ): Promise<ApiAeUnivariateResults> {

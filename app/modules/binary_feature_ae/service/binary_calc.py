@@ -3,15 +3,15 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from app.models.dataset_config import get_binary_feature_module_config
+from app.core.models.dataset_config import get_binary_feature_module_config
+from app.core.service.dataframe_loader import read_dataframe_from_path
+from app.core.service.dataset_config import get_dataset_config_with_file
 from app.modules.binary_feature_ae.models.triage import (
     ApiBinaryFeatureCalculateRequest,
     ApiBinaryFeatureCalculateResponse,
     ApiBinaryFeatureKpis,
     ApiBinaryFeatureRow,
 )
-from app.service.dataframe_loader import read_dataframe_from_path
-from app.service.dataset_config import get_dataset_config_with_file
 
 CANONICAL_FIELD_TO_LABEL: dict[str, str] = {
     "rule": "rule",

@@ -1,16 +1,16 @@
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import type { RouteLocationNormalizedLoaded } from 'vue-router';
 
+import {
+    getDatasetConfig,
+    getDatasetConfigSchema,
+    getDatasetConfigs,
+} from '@/core/api/dataset-configs';
 import type { ApiDatasetSchemaResults } from '@/types/datasets';
 import {
     isMortalityDatasetConfig,
     type ApiDatasetConfig,
 } from '@/types/dataset-config';
-import {
-    getDatasetConfig,
-    getDatasetConfigSchema,
-    getDatasetConfigs,
-} from '@/utils/api';
 
 import {
     getAeInsightsFromConfig,

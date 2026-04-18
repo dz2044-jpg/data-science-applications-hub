@@ -6,19 +6,20 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from app.models.dataset_config import (
-    ApiColumnMapping,
+from app.core.models.dataset_config import (
+    ApiMortalityAeModuleConfig,
     ApiCreateDatasetConfigRequest,
+    ModuleId,
     PerformanceType,
 )
-from app.models.insights import ApiAeInsightsFromConfigRequest
-from app.service.ae_insights import (
+from app.core.service.dataset_config import create_dataset_config, save_uploaded_file
+from app.modules.mortality_ae.models.insights import ApiAeInsightsFromConfigRequest
+from app.modules.mortality_ae.service.ae_insights import (
     _InsightDimension,
     _build_drill,
     _compute_quantile_edges,
     perform_ae_insights_from_config,
 )
-from app.service.dataset_config import create_dataset_config, save_uploaded_file
 
 
 def _create_saved_config(
@@ -49,7 +50,8 @@ def _create_saved_config(
         dataset_name=dataset_name,
         performance_type=PerformanceType.MORTALITY_AE,
         file_path="insights.csv",
-        column_mapping=ApiColumnMapping(
+        module_id=ModuleId.MORTALITY_AE,
+        module_config=ApiMortalityAeModuleConfig(
             policy_number_column="application_number",
             face_amount_column=None,
             mac_column="MAC",

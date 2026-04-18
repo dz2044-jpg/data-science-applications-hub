@@ -152,9 +152,9 @@
 import { computed, watch } from 'vue';
 
 import type { ApiDatasetSchemaResults } from '@/types/datasets';
-
-import type { ModuleFieldError, MortalityAeSetupState } from '@/core/registry';
+import type { ModuleFieldError } from '@/core/registry';
 import type { ApiCoreDatasetSchemaResults } from '@/core/types/schema';
+import type { MortalityAeSetupState } from '@/modules/mortality-ae/definition';
 
 const props = defineProps<{
     schema: ApiCoreDatasetSchemaResults | null;
@@ -271,4 +271,3 @@ watch(
     { immediate: true },
 );
 </script>
-

@@ -5,18 +5,21 @@ from pathlib import Path
 
 import pytest
 
-from app.models.ae import (
+from app.core.models.dataset_config import (
+    ApiMortalityAeModuleConfig,
+    ApiCreateDatasetConfigRequest,
+    ModuleId,
+    PerformanceType,
+)
+from app.core.service.dataset_config import create_dataset_config, save_uploaded_file
+from app.modules.mortality_ae.models.ae import (
     ApiAeUnivariateFromConfigParameters,
     ApiAeXVariableNumeric,
     ApiNumericBinning,
 )
-from app.models.dataset_config import (
-    ApiColumnMapping,
-    ApiCreateDatasetConfigRequest,
-    PerformanceType,
+from app.modules.mortality_ae.service.ae_univariate import (
+    perform_ae_univariate_from_config,
 )
-from app.service.ae_univariate import perform_ae_univariate_from_config
-from app.service.dataset_config import create_dataset_config, save_uploaded_file
 
 
 def test_perform_ae_univariate_from_config_uses_saved_file(
@@ -28,7 +31,8 @@ def test_perform_ae_univariate_from_config_uses_saved_file(
         dataset_name="configured-ae",
         performance_type=PerformanceType.MORTALITY_AE,
         file_path="ae.csv",
-        column_mapping=ApiColumnMapping(
+        module_id=ModuleId.MORTALITY_AE,
+        module_config=ApiMortalityAeModuleConfig(
             policy_number_column="application_number",
             face_amount_column=None,
             mac_column="MAC",

@@ -6,12 +6,13 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from app.models.dataset_config import (
+from app.core.models.dataset_config import (
     ApiBinaryFeatureAeModuleConfig,
     ApiCreateDatasetConfigRequest,
     ModuleId,
     PerformanceType,
 )
+from app.core.service.dataset_config import create_dataset_config, save_uploaded_file
 from app.modules.binary_feature_ae.models.triage import (
     ApiBinaryFeatureCalculateRequest,
     ApiBinaryFeatureSignificance,
@@ -21,7 +22,6 @@ from app.modules.binary_feature_ae.service.binary_calc import (
     calculate_binary_feature_ae,
     prepare_rule_df,
 )
-from app.service.dataset_config import create_dataset_config, save_uploaded_file
 
 
 def _sample_binary_df() -> pd.DataFrame:

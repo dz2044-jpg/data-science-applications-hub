@@ -1,11 +1,3 @@
-export interface ApiDatasetInfo {
-    name: string;
-}
-
-export interface ApiListDatasetsResults {
-    datasets: ApiDatasetInfo[];
-}
-
 export type ApiColumnKind = 'numeric' | 'categorical' | 'date';
 
 export interface ApiDatasetColumnInfo {
@@ -37,12 +29,4 @@ export interface ApiDatasetSchemaResults {
     mac_column: string;
     max_unique_values: number;
     column_suggestions?: ApiColumnMappingSuggestions | null;
-}
-
-export interface ApiDatasetColaResults {
-    dataset_name: string;
-    cola_m1_column: string;
-    cola_m2_column: string;
-    cola_m2_by_m1: Record<string, string[]>;
-    max_unique_values: number;
 }

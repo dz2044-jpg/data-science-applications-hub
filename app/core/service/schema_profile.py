@@ -11,7 +11,7 @@ from app.core.models.schema import (
     ApiCoreDatasetColumnInfo,
     ApiCoreDatasetSchemaResults,
 )
-from app.service.dataframe_loader import (
+from app.core.service.dataframe_loader import (
     read_dataframe_from_bytes,
     read_dataframe_from_path,
 )

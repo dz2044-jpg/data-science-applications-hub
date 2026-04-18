@@ -32,13 +32,6 @@ export const router = createRouter({
                     path: 'binary-feature-ae/analysis',
                     component: BinaryFeatureAnalysisPage,
                 },
-                {
-                    path: 'monitor',
-                    redirect: (to) => ({
-                        path: '/mortality-ae/analysis',
-                        query: to.query,
-                    }),
-                },
             ],
         },
     ],

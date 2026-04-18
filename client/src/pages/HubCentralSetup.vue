@@ -186,14 +186,14 @@ import {
     getAnalysisModuleById,
     getAnalysisModuleForConfig,
 } from '@/core/registry';
-import type { ApiCoreDatasetSchemaResults } from '@/core/types/schema';
-import type { ApiDatasetConfig } from '@/types/dataset-config';
 import {
     createDatasetConfig,
     deleteDatasetConfig,
     getDatasetConfigs,
-    postCoreUploadSchema,
-} from '@/utils/api';
+} from '@/core/api/dataset-configs';
+import { postCoreUploadSchema } from '@/core/api/data-io';
+import type { ApiCoreDatasetSchemaResults } from '@/core/types/schema';
+import type { ApiDatasetConfig } from '@/types/dataset-config';
 
 const router = useRouter();
 const $q = useQuasar();

@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import pandas as pd
 
-from app.calc.ae_univariate import compute_ae_univariate_rows
-from app.models.ae import (
+from app.modules.mortality_ae.calc.ae_univariate import (
+    compute_ae_univariate_rows,
+    compute_polynomial_fit,
+)
+from app.modules.mortality_ae.models.ae import (
     ApiAeCrossGroupDefinition,
     ApiAePolynomialFitParameters,
     ApiAeUnivariateRow,
@@ -14,7 +17,6 @@ from app.models.ae import (
     ApiCategoricalGroupDefinition,
     ApiNumericBinning,
 )
-from app.calc.ae_univariate import compute_polynomial_fit
 
 
 def test_compute_ae_univariate_rows_numeric_uniform_includes_total() -> None:

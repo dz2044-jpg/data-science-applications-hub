@@ -1,26 +1,26 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
-from app.service.dataset_schema import get_dataset_schema
+from app.modules.mortality_ae.service.dataset_schema import (
+    get_dataset_schema_from_bytes,
+)
 
 
 def test_get_dataset_schema_infers_kinds_and_uniques(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    (tmp_path / "demo.csv").write_text(
-        "MEC,MAC,sex,age,as_of,flag\n"
-        "10,9,M,40,2020-01-01,0\n"
-        "10,12,F,41,2020-01-03,1\n"
-        "10,8,M,42,2020-01-02,0\n",
-        encoding="utf-8",
-    )
-    monkeypatch.setenv("INSIGHT_HUB_DATA_DIR", str(tmp_path))
     monkeypatch.setenv("INSIGHT_HUB_MAX_UNIQUE_VALUES", "10")
 
-    schema = get_dataset_schema(dataset_name="demo.csv")
+    schema = get_dataset_schema_from_bytes(
+        file_bytes=(
+            b"MEC,MAC,sex,age,as_of,flag\n"
+            b"10,9,M,40,2020-01-01,0\n"
+            b"10,12,F,41,2020-01-03,1\n"
+            b"10,8,M,42,2020-01-02,0\n"
+        ),
+        filename="demo.csv",
+    )
     assert schema.dataset_name == "demo.csv"
     assert schema.mec_column == "MEC"
     assert schema.mac_column == "MAC"
@@ -41,10 +41,7 @@ def test_get_dataset_schema_infers_kinds_and_uniques(
 
 
 def test_get_dataset_schema_requires_mec_mac(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    (tmp_path / "bad.csv").write_text("x,y\n1,2\n", encoding="utf-8")
-    monkeypatch.setenv("INSIGHT_HUB_DATA_DIR", str(tmp_path))
-
     with pytest.raises(ValueError):
-        get_dataset_schema(dataset_name="bad.csv")
+        get_dataset_schema_from_bytes(file_bytes=b"x,y\n1,2\n", filename="bad.csv")

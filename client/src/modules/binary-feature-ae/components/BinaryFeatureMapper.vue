@@ -46,13 +46,10 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue';
 
-import type {
-    BinaryFeatureAeSetupState,
-    ModuleFieldError,
-} from '@/core/registry';
+import type { ModuleFieldError } from '@/core/registry';
 import type { ApiCoreDatasetSchemaResults } from '@/core/types/schema';
-
 import { BINARY_FEATURE_FIELD_DEFINITIONS } from '@/modules/binary-feature-ae/constants';
+import type { BinaryFeatureAeSetupState } from '@/modules/binary-feature-ae/definition';
 
 const props = defineProps<{
     schema: ApiCoreDatasetSchemaResults | null;

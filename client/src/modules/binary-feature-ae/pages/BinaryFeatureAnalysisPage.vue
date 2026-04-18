@@ -23,8 +23,8 @@
                 <q-card-section>
                     <div class="text-h6">Inputs</div>
                     <div class="text-body2 text-grey-7">
-                        Choose a saved Binary Feature dataset configuration from the Data
-                        Input page.
+                        Choose a saved Binary Feature dataset configuration from Central
+                        Setup.
                     </div>
                 </q-card-section>
 
@@ -42,7 +42,7 @@
                                 class="input-600"
                                 clearable
                                 :loading="configsLoading"
-                                hint="Choose a previously configured dataset from the Data Input page"
+                                hint="Choose a previously configured dataset from Central Setup"
                             >
                                 <template #prepend>
                                     <q-icon name="folder_open" />
@@ -468,7 +468,12 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
+import {
+    getDatasetConfig,
+    getDatasetConfigs,
+} from '@/core/api/dataset-configs';
 import BinaryFeatureCompareCharts from '@/modules/binary-feature-ae/components/BinaryFeatureCompareCharts.vue';
+import { postBinaryFeatureCalculate } from '@/modules/binary-feature-ae/api';
 import BinaryFeatureDetailCards from '@/modules/binary-feature-ae/components/BinaryFeatureDetailCards.vue';
 import BinaryFeatureGrid from '@/modules/binary-feature-ae/components/BinaryFeatureGrid.vue';
 import BinaryFeatureScatterPlot from '@/modules/binary-feature-ae/components/BinaryFeatureScatterPlot.vue';
@@ -489,11 +494,6 @@ import {
     type ApiDatasetConfig,
 } from '@/types/dataset-config';
 import { formatPercentFromRatio, formatWholeNumber } from '@/utils/format';
-import {
-    getDatasetConfig,
-    getDatasetConfigs,
-    postBinaryFeatureCalculate,
-} from '@/utils/api';
 
 const route = useRoute();
 
