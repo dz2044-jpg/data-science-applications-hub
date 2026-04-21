@@ -95,6 +95,7 @@ export const BINARY_FEATURE_FIELD_SECTIONS: BinaryFeatureFieldSection[] = [
                 label: 'Claim Amount',
                 sourceName: 'claim_amount',
             },
+            { key: 'man_sum', label: 'MAN Sum', sourceName: 'man_sum' },
             { key: 'mec_sum', label: 'MEC Sum', sourceName: 'mec_sum' },
         ],
     },

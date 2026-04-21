@@ -48,6 +48,7 @@ class ApiBinaryFeatureAeModuleConfig(BaseModel):
     hit_rate: str
     claim_count: str
     claim_amount: str
+    man_sum: str
     mec_sum: str
     ae_ratio_count: str
     ci_lower_95_count: str

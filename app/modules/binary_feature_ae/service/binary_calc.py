@@ -23,6 +23,7 @@ SHARED_FIELD_LABELS: dict[str, str] = {
     "hit_rate": "hit_rate",
     "claim_count": "claim_count",
     "claim_amount": "claim_amount",
+    "man_sum": "man_sum",
     "mec_sum": "mec_sum",
 }
 
@@ -104,7 +105,14 @@ REQUIRED_LABELS = _build_required_label_map()
 
 
 def _flatten_numeric_cols() -> list[str]:
-    numeric_cols = ["hit_count", "hit_rate", "claim_count", "claim_amount", "mec_sum"]
+    numeric_cols = [
+        "hit_count",
+        "hit_rate",
+        "claim_count",
+        "claim_amount",
+        "man_sum",
+        "mec_sum",
+    ]
     for perspective in PERSPECTIVE_CONFIGS.values():
         numeric_cols.append(str(perspective["ae_ratio_col"]))
         ci_cols = perspective["ci_cols"]

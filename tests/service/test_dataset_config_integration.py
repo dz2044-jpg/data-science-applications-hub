@@ -85,6 +85,7 @@ def test_binary_feature_configs_persist_with_widened_mapping_schema(
             hit_rate="hit_rate",
             claim_count="claim_count",
             claim_amount="claim_amount",
+            man_sum="man_sum",
             mec_sum="mec_sum",
             ae_ratio_count="ae_ratio_count",
             ci_lower_95_count="ci_lower_95_count",
@@ -120,7 +121,7 @@ def test_binary_feature_configs_persist_with_widened_mapping_schema(
     save_uploaded_file(
         config.id,
         BytesIO(
-            b"rule,RuleName,first_date,category,hit_count,hit_rate,claim_count,claim_amount,mec_sum,"
+            b"rule,RuleName,first_date,category,hit_count,hit_rate,claim_count,claim_amount,man_sum,mec_sum,"
             b"ae_ratio_count,ci_lower_95_count,ci_upper_95_count,ci_lower_90_count,ci_upper_90_count,"
             b"ci_lower_80_count,ci_upper_80_count,cola_cancer_pct_count,cola_heart_pct_count,"
             b"cola_nervous_system_pct_count,cola_non-natural_pct_count,cola_other_medical_pct_count,"
@@ -129,7 +130,7 @@ def test_binary_feature_configs_persist_with_widened_mapping_schema(
             b"ci_upper_80_amount,cola_cancer_pct_amount,cola_heart_pct_amount,"
             b"cola_nervous_system_pct_amount,cola_non-natural_pct_amount,"
             b"cola_other_medical_pct_amount,cola_respiratory_pct_amount,cola_others_pct_amount\n"
-            b"R1,Rule One,2024-01-01,Cancer,10,0.1,2,1000,1.5,1.2,1.0,1.4,1.02,1.38,1.05,1.35,0.5,0.2,0.1,0.05,0.05,0.05,0.05,0.9,0.8,1.0,0.82,0.98,0.84,0.96,0.2,0.4,0.1,0.1,0.1,0.05,0.05\n"
+            b"R1,Rule One,2024-01-01,Cancer,10,0.1,2,1000,900,1.5,1.2,1.0,1.4,1.02,1.38,1.05,1.35,0.5,0.2,0.1,0.05,0.05,0.05,0.05,0.9,0.8,1.0,0.82,0.98,0.84,0.96,0.2,0.4,0.1,0.1,0.1,0.05,0.05\n"
         ),
         "binary.csv",
     )
@@ -141,6 +142,7 @@ def test_binary_feature_configs_persist_with_widened_mapping_schema(
 
     saved = next(item for item in body["configs"] if item["id"] == config.id)
     assert saved["module_config"]["claim_amount"] == "claim_amount"
+    assert saved["module_config"]["man_sum"] == "man_sum"
     assert saved["module_config"]["ae_ratio_count"] == "ae_ratio_count"
     assert saved["module_config"]["ae_ratio_amount"] == "ae_ratio_amount"
 

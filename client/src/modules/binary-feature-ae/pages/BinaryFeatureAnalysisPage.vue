@@ -496,6 +496,7 @@
                         <BinaryFeatureGrid
                             :rows="rows"
                             :perspective="displayedPerspective"
+                            :ci-level="ciLevel"
                             :selected-row-ids="selectedRowIds"
                             @update:selected-row-ids="selectedRowIds = $event"
                             @focus-row="focusedRowId = $event"

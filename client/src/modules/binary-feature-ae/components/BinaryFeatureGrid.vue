@@ -15,10 +15,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import type { QTableColumn, QTableProps } from 'quasar';
 
-import type { ApiBinaryFeatureRow } from '@/types/binary-feature-ae';
+import type {
+    ApiBinaryFeatureRow,
+    BinaryFeatureCiLevel,
+} from '@/types/binary-feature-ae';
 import {
     formatCurrency,
     formatPercentFromRatio,
@@ -28,6 +31,7 @@ import {
 const props = defineProps<{
     rows: ApiBinaryFeatureRow[];
     perspective: 'count' | 'amount';
+    ciLevel: BinaryFeatureCiLevel;
     selectedRowIds: string[];
 }>();
 
@@ -43,8 +47,12 @@ const pagination = ref<QTableProps['pagination']>({
     rowsPerPage: 10,
 });
 
+const perspectiveLabel = computed(() =>
+    props.perspective === 'count' ? 'Count' : 'Amount',
+);
+
 const columns = computed<QTableColumn<ApiBinaryFeatureRow>[]>(() => {
-    const activeClaimColumn: QTableColumn<ApiBinaryFeatureRow> =
+    const activeMaterialityColumn: QTableColumn<ApiBinaryFeatureRow> =
         props.perspective === 'count'
             ? {
                   name: 'claim_count',
@@ -55,9 +63,9 @@ const columns = computed<QTableColumn<ApiBinaryFeatureRow>[]>(() => {
                   format: (value: number) => formatWholeNumber(value),
               }
             : {
-                  name: 'claim_amount',
-                  label: 'Claim Amount',
-                  field: 'claim_amount',
+                  name: 'man_sum',
+                  label: 'MAN Sum',
+                  field: 'man_sum',
                   align: 'right',
                   sortable: true,
                   format: (value: number) => formatCurrency(value),
@@ -101,18 +109,10 @@ const columns = computed<QTableColumn<ApiBinaryFeatureRow>[]>(() => {
             sortable: true,
             format: (value: number) => formatPercentFromRatio(value),
         },
-        activeClaimColumn,
-        {
-            name: 'mec_sum',
-            label: 'MEC Sum',
-            field: 'mec_sum',
-            align: 'right',
-            sortable: true,
-            format: (value: number) => value.toFixed(2),
-        },
+        activeMaterialityColumn,
         {
             name: 'ae_ratio',
-            label: `${props.perspective === 'count' ? 'Count' : 'Amount'} A/E Ratio`,
+            label: `${perspectiveLabel.value} A/E Ratio`,
             field: 'ae_ratio',
             align: 'right',
             sortable: true,
@@ -120,7 +120,7 @@ const columns = computed<QTableColumn<ApiBinaryFeatureRow>[]>(() => {
         },
         {
             name: 'ci_lower',
-            label: 'CI Lower',
+            label: `${perspectiveLabel.value} CI Lower (${props.ciLevel}%)`,
             field: 'ci_lower',
             align: 'right',
             sortable: true,
@@ -128,7 +128,7 @@ const columns = computed<QTableColumn<ApiBinaryFeatureRow>[]>(() => {
         },
         {
             name: 'ci_upper',
-            label: 'CI Upper',
+            label: `${perspectiveLabel.value} CI Upper (${props.ciLevel}%)`,
             field: 'ci_upper',
             align: 'right',
             sortable: true,
@@ -143,7 +143,7 @@ const columns = computed<QTableColumn<ApiBinaryFeatureRow>[]>(() => {
         },
         {
             name: 'dominant_cola',
-            label: `Dominant ${props.perspective === 'count' ? 'Count' : 'Amount'} Mix`,
+            label: `Dominant ${perspectiveLabel.value} Mix`,
             field: 'dominant_cola',
             align: 'left',
             sortable: true,
@@ -158,6 +158,38 @@ const columns = computed<QTableColumn<ApiBinaryFeatureRow>[]>(() => {
         },
     ];
 });
+
+watch(
+    () => props.perspective,
+    (nextPerspective) => {
+        const currentPagination = pagination.value;
+        if (!currentPagination) {
+            return;
+        }
+
+        if (
+            nextPerspective === 'amount' &&
+            currentPagination.sortBy === 'claim_count'
+        ) {
+            pagination.value = {
+                ...currentPagination,
+                sortBy: 'impact_score',
+                descending: true,
+            };
+        }
+
+        if (
+            nextPerspective === 'count' &&
+            currentPagination.sortBy === 'man_sum'
+        ) {
+            pagination.value = {
+                ...currentPagination,
+                sortBy: 'impact_score',
+                descending: true,
+            };
+        }
+    },
+);
 
 const selectedRowsModel = computed<ApiBinaryFeatureRow[]>({
     get() {
