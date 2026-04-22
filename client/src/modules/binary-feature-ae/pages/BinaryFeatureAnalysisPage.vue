@@ -355,21 +355,25 @@
                     <div class="col-12 col-lg-8">
                         <q-card class="section-card">
                             <q-card-section>
-                                <div class="row items-center justify-between">
-                                    <div>
+                                <div class="row items-start q-col-gutter-md">
+                                    <div class="col-12 col-md">
                                         <div class="text-h6">Rule Scatter</div>
                                         <div class="text-caption text-grey-7">
                                             {{ perspectiveLabel }} perspective
                                         </div>
                                     </div>
-                                    <div class="row items-center q-gutter-x-sm">
-                                        <span class="text-caption text-grey-7">Bubble Size</span>
-                                        <q-btn-toggle
+                                    <div class="col-12 col-md-auto">
+                                        <div class="text-caption text-grey-7 q-mb-xs">
+                                            Bubble Size
+                                        </div>
+                                        <q-option-group
                                             v-model="sizeBy"
-                                            unelevated
-                                            class="bubble-size-toggle"
-                                            toggle-color="primary"
+                                            type="radio"
+                                            inline
+                                            dense
+                                            color="primary"
                                             :options="sizeByOptions"
+                                            class="filter-option-group"
                                         />
                                     </div>
                                 </div>
@@ -1015,30 +1019,6 @@ onBeforeUnmount(() => {
 
 .scatter-card {
     position: relative;
-}
-
-/* Toggle buttons: Bubble Size */
-
-/* Separate the flush-joined buttons with a visible gap */
-.bubble-size-toggle :deep(.q-btn-group) {
-    gap: 4px;
-}
-
-/* Each button gets its own rounded corners now that they are separated */
-.bubble-size-toggle :deep(.q-btn) {
-    border-radius: 4px !important;
-}
-
-/* Inactive options: visible fill + border + slightly darker text */
-.bubble-size-toggle :deep(.q-btn:not(.q-btn--active)) {
-    background-color: #eef2f7;
-    border: 1px solid #b8c4d4 !important;
-    color: #374151;
-}
-
-/* Hover state for inactive options */
-.bubble-size-toggle :deep(.q-btn:not(.q-btn--active):hover) {
-    background-color: #dce8f4;
 }
 
 @media (max-width: 1200px) {
