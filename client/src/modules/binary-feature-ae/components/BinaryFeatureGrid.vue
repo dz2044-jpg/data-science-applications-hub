@@ -73,14 +73,6 @@ const columns = computed<QTableColumn<ApiBinaryFeatureRow>[]>(() => {
                       sortable: true,
                       format: (value: number) => formatCurrency(value),
                   },
-                  {
-                      name: 'men_sum',
-                      label: 'MEN Sum',
-                      field: 'men_sum',
-                      align: 'right',
-                      sortable: true,
-                      format: (value: number) => formatCurrency(value),
-                  },
               ];
 
     return [
@@ -184,9 +176,7 @@ watch(
 
         if (
             nextPerspective === 'count' &&
-            ['claim_amount', 'men_sum', 'impact_score'].includes(
-                String(currentPagination.sortBy),
-            )
+            ['claim_amount', 'impact_score'].includes(String(currentPagination.sortBy))
         ) {
             pagination.value = {
                 ...currentPagination,

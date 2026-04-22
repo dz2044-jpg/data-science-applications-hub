@@ -121,6 +121,8 @@ async function renderCharts() {
                     row.significance_class,
                     row.rule,
                     row.claim_amount,
+                    row.mec_sum,
+                    row.men_sum,
                 ]),
                 hovertemplate:
                     '<b>%{customdata[5]}</b><br>' +
@@ -129,6 +131,8 @@ async function renderCharts() {
                     'Hit Count: %{customdata[3]:,.0f}<br>' +
                     'Claim Count: %{customdata[2]:,.0f}<br>' +
                     'Claim Amount: %{customdata[6]:$,.0f}<br>' +
+                    'MEC Sum: %{customdata[7]:,.2f}<br>' +
+                    'MEN Sum: %{customdata[8]:$,.0f}<br>' +
                     'Significance: %{customdata[4]}<br>' +
                     `${perspectiveLabel.value} A/E: %{x:.4f}<extra></extra>`,
                 showlegend: false,
@@ -179,6 +183,8 @@ async function renderCharts() {
                 row.rule,
                 row.claim_count,
                 row.claim_amount,
+                row.mec_sum,
+                row.men_sum,
             ]),
             hovertemplate:
                 '<b>%{customdata[4]}</b><br>' +
@@ -188,6 +194,8 @@ async function renderCharts() {
                 'Significance: %{customdata[3]}<br>' +
                 'Claim Count: %{customdata[5]:,.0f}<br>' +
                 'Claim Amount: %{customdata[6]:$,.0f}<br>' +
+                'MEC Sum: %{customdata[7]:,.2f}<br>' +
+                'MEN Sum: %{customdata[8]:$,.0f}<br>' +
                 'Share: %{x:.1f}%<extra></extra>',
         })),
         {

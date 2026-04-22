@@ -35,12 +35,12 @@
                         <span>{{ formatCurrency(focusedRow.claim_amount) }}</span>
                     </div>
                     <div class="detail-metric">
-                        <span class="detail-label">MEN Sum</span>
-                        <span>{{ formatCurrency(focusedRow.men_sum) }}</span>
-                    </div>
-                    <div class="detail-metric">
                         <span class="detail-label">MEC Sum</span>
                         <span>{{ focusedRow.mec_sum.toFixed(2) }}</span>
+                    </div>
+                    <div class="detail-metric">
+                        <span class="detail-label">MEN Sum</span>
+                        <span>{{ formatCurrency(focusedRow.men_sum) }}</span>
                     </div>
                     <div class="detail-metric">
                         <span class="detail-label">A/E Ratio ({{ perspectiveLabel }})</span>
@@ -278,6 +278,10 @@ async function renderCharts() {
                 hovertemplate:
                     `<b>${row.rule}</b><br>` +
                     `${row.RuleName}<br>` +
+                    `Claim Count: ${row.claim_count.toLocaleString()}<br>` +
+                    `Claim Amount: ${formatCurrency(row.claim_amount)}<br>` +
+                    `MEC Sum: ${row.mec_sum.toFixed(2)}<br>` +
+                    `MEN Sum: ${formatCurrency(row.men_sum)}<br>` +
                     `${perspectiveLabel.value} A/E: ${row.ae_ratio.toFixed(4)}<br>` +
                     `CI: [${ciLow.toFixed(4)}, ${ciHigh.toFixed(4)}]` +
                     '<extra></extra>',
@@ -326,11 +330,10 @@ async function renderCharts() {
                 `Category: ${row.category}<br>` +
                 `${perspectiveLabel.value} A/E Ratio: ${row.ae_ratio.toFixed(4)}<br>` +
                 `Significance: ${row.significance_class}<br>` +
-                `${
-                    props.perspective === 'count'
-                        ? `Claim Count: ${row.claim_count.toLocaleString()}`
-                        : `Claim Amount: ${formatCurrency(row.claim_amount)}`
-                }<br>` +
+                `Claim Count: ${row.claim_count.toLocaleString()}<br>` +
+                `Claim Amount: ${formatCurrency(row.claim_amount)}<br>` +
+                `MEC Sum: ${row.mec_sum.toFixed(2)}<br>` +
+                `MEN Sum: ${formatCurrency(row.men_sum)}<br>` +
                 `Share: %{x:.1f}%` +
                 '<extra></extra>',
         })),

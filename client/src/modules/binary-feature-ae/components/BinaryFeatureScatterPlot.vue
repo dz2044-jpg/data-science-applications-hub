@@ -135,6 +135,7 @@ async function renderPlot() {
                 row.dominant_cola_pct,
                 row.confidence_band,
                 row.claim_amount,
+                row.men_sum,
             ]),
             marker: {
                 size: bandRows.map((row) => markerSizeForRow(row, maxSizeValue)),
@@ -169,6 +170,7 @@ async function renderPlot() {
                 'Claim Count: %{customdata[6]:,.0f}<br>' +
                 'Claim Amount: %{customdata[15]:$,.0f}<br>' +
                 'MEC Sum: %{customdata[7]:,.2f}<br>' +
+                'MEN Sum: %{customdata[16]:$,.0f}<br>' +
                 `${getPerspectiveLabel()} A/E Ratio: %{customdata[8]:.4f}<br>` +
                 'CI: [%{customdata[9]:.4f}, %{customdata[10]:.4f}]<br>' +
                 'Significance: %{customdata[11]}<br>' +
