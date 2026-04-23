@@ -897,7 +897,11 @@ async function onExplainRule() {
             return;
         }
 
-        aiExplainError.value = err instanceof Error ? err.message : String(err);
+        const message = err instanceof Error ? err.message : String(err);
+        aiExplainError.value =
+            message === 'Not Found'
+                ? 'Explain Rule endpoint was not found on the backend. Restart the FastAPI server on port 8000 so it loads the new /api/binary-feature-ae/ai/explain-rule route.'
+                : message;
     } finally {
         if (!signal.aborted) {
             aiExplainLoading.value = false;
