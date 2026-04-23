@@ -12,3 +12,9 @@ client/dist/
 .insight-hub.migrating
 
 files_for_hub/
+
+# Data files should remain local and never be committed.
+*.csv
+*.parquet
+*.xls
+*.xlsx
