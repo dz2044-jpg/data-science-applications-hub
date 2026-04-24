@@ -34,9 +34,23 @@
                 </q-badge>
             </div>
 
+            <BinaryFeatureAiStateBanner
+                :is-stale="isStale"
+                :is-fallback="result.source_mode === 'fallback'"
+                :used-reference-context="result.used_reference_context"
+                :reference-sources="result.reference_sources"
+                :validation-notes="result.validation_notes"
+            />
+
             <div class="text-body2">
                 {{ result.summary_text }}
             </div>
+
+            <BinaryFeatureEvidenceChips
+                class="q-mt-md"
+                :evidence-refs="result.evidence_refs"
+                @focus-row="emit('focus-row', $event)"
+            />
 
             <div v-if="result.key_findings.length" class="q-mt-md">
                 <div class="text-subtitle2">Key Findings</div>
@@ -80,6 +94,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
+import BinaryFeatureAiStateBanner from '@/modules/binary-feature-ae/components/BinaryFeatureAiStateBanner.vue';
+import BinaryFeatureEvidenceChips from '@/modules/binary-feature-ae/components/BinaryFeatureEvidenceChips.vue';
 import type {
     ApiBinaryFeatureAiResponse,
     ApiBinaryFeatureRow,
@@ -90,10 +106,12 @@ const props = defineProps<{
     result: ApiBinaryFeatureAiResponse | null;
     loading: boolean;
     error: string | null;
+    isStale: boolean;
 }>();
 
 const emit = defineEmits<{
     explain: [];
+    'focus-row': [rowId: string];
 }>();
 
 const sourceLabel = computed(() => {

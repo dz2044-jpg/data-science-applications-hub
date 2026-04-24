@@ -408,10 +408,12 @@
                         <BinaryFeatureAiPanel
                             class="q-mt-md"
                             :focused-row="focusedRow"
+                            :is-stale="isAiExplainStale || isAiExplainFocusedRowStale"
                             :result="aiExplainResponse"
                             :loading="aiExplainLoading"
                             :error="aiExplainError"
                             @explain="onExplainRule"
+                            @focus-row="focusEvidenceRow"
                         />
 
                         <q-card class="q-mt-md section-card">
@@ -585,6 +587,7 @@ const activeDatasetName = ref<string | null>(null);
 const aiExplainLoading = ref(false);
 const aiExplainError = ref<string | null>(null);
 const aiExplainResponse = ref<ApiBinaryFeatureAiResponse | null>(null);
+const lastExplainedRowId = ref<string | null>(null);
 
 const categories = ref<string[]>([]);
 const significanceValues = ref<BinaryFeatureSignificance[]>([...SIGNIFICANCE_OPTIONS]);
@@ -692,6 +695,23 @@ const focusedRow = computed(() => {
     return rows.value.find((row) => row.row_id === focusedRowId.value) ?? null;
 });
 
+const isAiExplainFocusedRowStale = computed(() => {
+    if (!aiExplainResponse.value || !lastExplainedRowId.value) {
+        return false;
+    }
+
+    return focusedRowId.value !== lastExplainedRowId.value;
+});
+
+const isAiExplainStale = computed(() => {
+    if (!aiExplainResponse.value || !responseData.value) {
+        return false;
+    }
+
+    // Assumes AI state_fingerprint matches the calculate response visible-view fingerprint.
+    return aiExplainResponse.value.state_fingerprint !== responseData.value.state_fingerprint;
+});
+
 const selectedRows = computed(() => {
     return rows.value.filter((row) => selectedRowIds.value.includes(row.row_id));
 });
@@ -772,6 +792,7 @@ function clearExplainState() {
     aiExplainLoading.value = false;
     aiExplainError.value = null;
     aiExplainResponse.value = null;
+    lastExplainedRowId.value = null;
 }
 
 async function ensureBinaryFeatureConfig(configId: string) {
@@ -872,6 +893,7 @@ async function onExplainRule() {
         return;
     }
 
+    const explainedRowId = focusedRow.value.row_id;
     clearExplainState();
     explainAbortController = new AbortController();
     const signal = explainAbortController.signal;
@@ -888,10 +910,11 @@ async function onExplainRule() {
                 search_text: debouncedSearchText.value || null,
                 min_hit_count: debouncedMinHitCount.value,
                 min_claim_count: debouncedMinClaimCount.value,
-                row_id: focusedRow.value.row_id,
+                row_id: explainedRowId,
             },
             signal,
         );
+        lastExplainedRowId.value = explainedRowId;
     } catch (err) {
         if (signal.aborted) {
             return;
@@ -925,6 +948,14 @@ function clearPins() {
     pinnedRuleKeys.value = [];
 }
 
+function focusEvidenceRow(rowId: string) {
+    if (!rows.value.some((row) => row.row_id === rowId)) {
+        return;
+    }
+
+    focusedRowId.value = rowId;
+}
+
 watch(
     () => routeConfigId.value,
     (configId) => {
@@ -939,17 +970,6 @@ watch(
         void handleSelectedConfigChange(configId);
     },
     { immediate: true },
-);
-
-watch(
-    () => [
-        selectedConfigId.value,
-        focusedRowId.value,
-        responseData.value?.state_fingerprint,
-    ],
-    () => {
-        clearExplainState();
-    },
 );
 
 watch(
